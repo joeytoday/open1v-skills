@@ -5,39 +5,48 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>公众号封面</title>
 <style>
+/*
+ * 公众号封面模板 — 4种风格
+ * 画布: 1344×572 (2.35:1), Playwright @2x 输出 2688×1144
+ *
+ * 设计原则:
+ * P1 标题即封面 — 标题占视觉权重 60%+
+ * P2 图片是氛围 — 全幅铺满或右侧展示，通过遮罩让文字可读
+ * P3 一种对比策略 — 01亮字暗底/02暗字浅底/03白字彩底/04彩字暗底
+ * P4 遮罩有方向 — 只覆盖文字区 40-50%，右侧保持图片生动
+ * P5 一个记忆点 — 01红色高亮/02极细竖线/03手绘图标/04像素字体
+ * P6 宁少不多 — 封面只有标题+副标题+背景，无logo/日期/tag
+ */
+
 * { margin: 0; padding: 0; box-sizing: border-box; }
 
 :root {
-  --cover-width: 1344px;
-  --cover-height: 572px;
-  --font-main: 'Noto Sans SC', 'PingFang SC', 'Microsoft YaHei', sans-serif;
-  --font-serif: 'Noto Serif SC', 'Source Han Serif SC', 'STSong', serif;
-  --font-mono: 'JetBrains Mono', 'Fira Code', 'Courier New', monospace;
-
-  /* spacing scale (8px base) */
-  --sp-1: 8px;
-  --sp-2: 16px;
-  --sp-3: 24px;
-  --sp-4: 32px;
-  --sp-5: 40px;
-  --sp-6: 48px;
-  --sp-8: 64px;
-  --sp-10: 80px;
+  --w: 1344px;
+  --h: 572px;
+  --sans: 'Noto Sans SC', 'PingFang SC', 'Microsoft YaHei', system-ui, sans-serif;
+  --serif: 'Noto Serif SC', 'Source Han Serif SC', Georgia, serif;
+  --mono: 'JetBrains Mono', 'Fira Code', 'SF Mono', 'Courier New', monospace;
 }
 
 body {
-  background: #111;
+  background: #0a0a0a;
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 32px;
-  padding: 32px;
+  gap: 40px;
+  padding: 40px;
 }
 
-/* ===== Base cover ===== */
+/* ========================================
+   Base Layer System
+   Layer 0: __bg       (全幅背景图)
+   Layer 1: __overlay  (渐变遮罩)
+   Layer 2: __content  (文字/前景元素)
+   ======================================== */
+
 .cover {
-  width: var(--cover-width);
-  height: var(--cover-height);
+  width: var(--w);
+  height: var(--h);
   position: relative;
   overflow: hidden;
 }
@@ -52,12 +61,14 @@ body {
   width: 100%;
   height: 100%;
   object-fit: cover;
+  display: block;
 }
 
 .cover__overlay {
   position: absolute;
   inset: 0;
   z-index: 1;
+  pointer-events: none;
 }
 
 .cover__content {
@@ -69,269 +80,351 @@ body {
   align-items: center;
 }
 
-.cover__text {
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
+/* ========================================
+   01 大字报 — 电影海报感
+   ----------------------------------------
+   读者感受: "这篇有态度"
+   策略: 亮字 on 暗底, 最高对比
+   记忆点: 一个红色高亮关键词
+   ======================================== */
+
+.cover--poster {
+  background: #08080a;
 }
 
-.cover__title {
-  margin: 0;
-}
-
-.cover__subtitle {
-  margin: 0;
-}
-
-/* ===== Style 01: 大字报 ===== */
 .cover--poster .cover__overlay {
   background: linear-gradient(
-    to right,
-    rgba(8, 8, 10, 0.92) 0%,
-    rgba(8, 8, 10, 0.75) 35%,
-    rgba(8, 8, 10, 0.2) 65%,
+    105deg,
+    rgba(8, 8, 10, 0.95) 0%,
+    rgba(8, 8, 10, 0.82) 30%,
+    rgba(8, 8, 10, 0.35) 55%,
+    rgba(8, 8, 10, 0.05) 80%,
     transparent 100%
   );
 }
 
 .cover--poster .cover__content {
-  padding: var(--sp-8) var(--sp-6);
+  padding: 56px 64px;
 }
 
 .cover--poster .cover__text {
-  max-width: 50%;
-  gap: var(--sp-3);
+  max-width: 48%;
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
 }
 
 .cover--poster .cover__title {
-  font-family: var(--font-main);
-  font-size: 64px;
+  font-family: var(--sans);
+  font-size: 68px;
   font-weight: 900;
-  line-height: 1.12;
-  letter-spacing: -1.5px;
-  color: #fff;
+  line-height: 1.08;
+  letter-spacing: -2px;
+  color: #ffffff;
 }
 
 .cover--poster .cover__title .hl {
-  color: #e05252;
+  color: #e8453c;
 }
 
 .cover--poster .cover__subtitle {
-  font-family: var(--font-main);
+  font-family: var(--sans);
   font-size: 20px;
   font-weight: 300;
   line-height: 1.5;
-  color: rgba(255, 255, 255, 0.55);
+  color: rgba(255, 255, 255, 0.5);
+  max-width: 380px;
 }
 
-/* ===== Style 02: 杂志风 ===== */
+/* ========================================
+   02 杂志风 — 独立杂志编辑美学
+   ----------------------------------------
+   读者感受: "这篇有品位"
+   策略: 暗字 on 浅底, 低对比+精致排版
+   记忆点: 一根极细竖线 + 底部期号
+   ======================================== */
+
+.cover--magazine {
+  background: #f5f3ef;
+}
+
 .cover--magazine .cover__overlay {
   background: linear-gradient(
-    to right,
-    rgba(245, 243, 239, 0.95) 0%,
-    rgba(245, 243, 239, 0.88) 40%,
-    rgba(245, 243, 239, 0.3) 70%,
+    100deg,
+    rgba(245, 243, 239, 0.97) 0%,
+    rgba(245, 243, 239, 0.92) 35%,
+    rgba(245, 243, 239, 0.5) 55%,
+    rgba(245, 243, 239, 0.15) 75%,
     transparent 100%
   );
 }
 
 .cover--magazine .cover__content {
-  padding: var(--sp-6) var(--sp-6);
+  padding: 48px 56px;
+  flex-direction: column;
+  align-items: flex-start;
+  justify-content: center;
 }
 
 .cover--magazine .cover__text {
-  max-width: 48%;
-  gap: var(--sp-3);
+  max-width: 46%;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
 }
 
 .cover--magazine .cover__title {
-  font-family: var(--font-main);
-  font-size: 56px;
+  font-family: var(--sans);
+  font-size: 54px;
   font-weight: 800;
-  line-height: 1.1;
-  letter-spacing: -2px;
+  line-height: 1.08;
+  letter-spacing: -2.5px;
   color: #1a1a1a;
 }
 
 .cover--magazine .cover__subtitle {
-  font-family: var(--font-main);
-  font-size: 18px;
+  font-family: var(--sans);
+  font-size: 17px;
   font-weight: 300;
-  line-height: 1.6;
-  color: #555;
+  line-height: 1.65;
+  color: #666;
+  max-width: 340px;
 }
 
 .cover--magazine .cover__meta {
-  font-family: var(--font-main);
-  font-size: 12px;
-  font-weight: 500;
-  letter-spacing: 3px;
+  font-family: var(--sans);
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 4px;
   text-transform: uppercase;
-  color: #999;
-  margin-top: var(--sp-4);
+  color: #aaa;
+  margin-top: 24px;
 }
 
-.cover--magazine .cover__accent {
+/* 记忆点: 极细竖线 */
+.cover--magazine .cover__divider {
   position: absolute;
-  left: 47%;
-  top: var(--sp-6);
-  bottom: var(--sp-6);
+  left: 46%;
+  top: 48px;
+  bottom: 48px;
   width: 1px;
-  background: rgba(0, 0, 0, 0.1);
+  background: rgba(0, 0, 0, 0.08);
   z-index: 3;
 }
 
-/* ===== Style 03: 极简抽象 ===== */
+/* ========================================
+   03 极简抽象 — Claude 博客风
+   ----------------------------------------
+   读者感受: "这篇很清晰"
+   策略: 白字 on 彩色底, 中等对比, 靠色块面积取胜
+   记忆点: 右侧手绘图标
+   特殊: 不用全幅背景图, 纯色底+右侧图标
+   ======================================== */
+
 .cover--minimal {
   background: #7d8c5c;
 }
 
-.cover--minimal .cover__overlay {
-  background: linear-gradient(
-    to right,
-    rgba(0, 0, 0, 0.08) 0%,
-    transparent 50%
-  );
-}
-
 .cover--minimal .cover__content {
-  padding: var(--sp-6) var(--sp-8);
+  padding: 56px 72px;
   justify-content: space-between;
 }
 
 .cover--minimal .cover__text {
-  max-width: 45%;
-  gap: var(--sp-2);
+  max-width: 48%;
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
 }
 
 .cover--minimal .cover__title {
-  font-family: var(--font-main);
+  font-family: var(--sans);
   font-size: 52px;
   font-weight: 700;
-  line-height: 1.2;
-  color: #fff;
+  line-height: 1.18;
+  letter-spacing: -1px;
+  color: #ffffff;
 }
 
 .cover--minimal .cover__subtitle {
-  font-family: var(--font-main);
-  font-size: 18px;
+  font-family: var(--sans);
+  font-size: 17px;
   font-weight: 300;
-  line-height: 1.5;
-  color: rgba(255, 255, 255, 0.7);
+  line-height: 1.6;
+  color: rgba(255, 255, 255, 0.72);
+  max-width: 320px;
 }
 
-.cover--minimal .cover__image {
-  max-width: 45%;
+/* 记忆点: 右侧手绘图标 */
+.cover--minimal .cover__icon {
   display: flex;
   align-items: center;
-  justify-content: flex-end;
+  justify-content: center;
+  padding-right: 24px;
 }
 
-.cover--minimal .cover__image img {
-  max-height: 360px;
+.cover--minimal .cover__icon img {
+  max-height: 320px;
+  max-width: 420px;
   object-fit: contain;
 }
 
-/* ===== Style 04: 像素风 ===== */
-.cover--pixel .cover__overlay {
-  background: linear-gradient(
-    to right,
-    rgba(20, 16, 32, 0.9) 0%,
-    rgba(20, 16, 32, 0.6) 35%,
-    transparent 70%
-  );
-}
-
-.cover--pixel .cover__content {
-  padding: var(--sp-6) var(--sp-6);
-}
-
-.cover--pixel .cover__text {
-  max-width: 45%;
-  gap: var(--sp-2);
-}
-
-.cover--pixel .cover__title {
-  font-family: var(--font-mono);
-  font-size: 48px;
-  font-weight: 700;
-  line-height: 1.2;
-  color: #f0d060;
-  text-shadow: 2px 2px 0 rgba(139, 69, 19, 0.6);
-}
-
-.cover--pixel .cover__subtitle {
-  font-family: var(--font-mono);
-  font-size: 16px;
-  font-weight: 400;
-  line-height: 1.5;
-  color: rgba(255, 255, 255, 0.55);
-}
-
-/* ===== 极简抽象配色 ===== */
+/* 配色 */
 .cover--minimal[data-color="olive"]    { background: #7d8c5c; }
 .cover--minimal[data-color="peach"]    { background: #e8b4a0; }
 .cover--minimal[data-color="lavender"] { background: #9b95b8; }
 .cover--minimal[data-color="cream"]    { background: #e8d5a3; }
 .cover--minimal[data-color="fog"]      { background: #8fa8b8; }
 .cover--minimal[data-color="forest"]   { background: #4a6741; }
+.cover--minimal[data-color="slate"]    { background: #5c6b7a; }
+.cover--minimal[data-color="coral"]    { background: #d4806b; }
+
+/* ========================================
+   04 像素风 — 16-bit 游戏怀旧
+   ----------------------------------------
+   读者感受: "这篇有趣"
+   策略: 彩字 on 暗底, 像素锐利边缘打破常规
+   记忆点: 像素字体+投影 + 全幅像素画
+   ======================================== */
+
+.cover--pixel {
+  background: #140f20;
+  image-rendering: pixelated;
+}
+
+.cover--pixel .cover__bg img {
+  image-rendering: pixelated;
+}
+
+.cover--pixel .cover__overlay {
+  background: linear-gradient(
+    100deg,
+    rgba(20, 15, 32, 0.92) 0%,
+    rgba(20, 15, 32, 0.7) 30%,
+    rgba(20, 15, 32, 0.25) 55%,
+    transparent 80%
+  );
+}
+
+.cover--pixel .cover__content {
+  padding: 56px 56px;
+}
+
+.cover--pixel .cover__text {
+  max-width: 44%;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.cover--pixel .cover__title {
+  font-family: var(--mono);
+  font-size: 46px;
+  font-weight: 700;
+  line-height: 1.2;
+  color: #f5d245;
+  text-shadow:
+    3px 3px 0 rgba(80, 40, 0, 0.7),
+    -1px -1px 0 rgba(255, 230, 100, 0.2);
+}
+
+.cover--pixel .cover__subtitle {
+  font-family: var(--mono);
+  font-size: 15px;
+  font-weight: 400;
+  line-height: 1.6;
+  color: rgba(255, 255, 255, 0.5);
+}
+
+/* 可选: 像素边框装饰 */
+.cover--pixel .cover__border {
+  position: absolute;
+  inset: 12px;
+  border: 2px solid rgba(245, 210, 69, 0.15);
+  z-index: 3;
+  pointer-events: none;
+}
 </style>
 </head>
 <body>
 
-<!-- Style 01: 大字报 — 全幅背景图 + 左侧渐变遮罩 + 标题 -->
+<!--
+  ╔══════════════════════════════════════════╗
+  ║  01 大字报                               ║
+  ║  全幅电影感背景 + 左侧深色遮罩 + 大白字   ║
+  ╚══════════════════════════════════════════╝
+-->
 <section class="cover cover--poster" id="cover-poster">
   <div class="cover__bg">
-    <!-- BG: <img src="assets/bg.jpg" alt=""> -->
+    <!-- BG: 百炼生成的电影感背景图 -->
+    <!-- <img src="assets/poster-bg.jpg" alt=""> -->
   </div>
   <div class="cover__overlay"></div>
   <div class="cover__content">
     <div class="cover__text">
-      <h1 class="cover__title"><!-- TITLE --></h1>
-      <p class="cover__subtitle"><!-- SUBTITLE --></p>
+      <h1 class="cover__title"><!-- TITLE: 主标题，≤10字，可用 <span class="hl">关键词</span> 高亮 --></h1>
+      <p class="cover__subtitle"><!-- SUBTITLE: 副标题，≤15字 --></p>
     </div>
   </div>
 </section>
 
-<!-- Style 02: 杂志风 — 全幅背景图 + 左侧浅色遮罩 + 标题 + 竖线 -->
+<!--
+  ╔══════════════════════════════════════════╗
+  ║  02 杂志风                               ║
+  ║  全幅质感背景 + 左侧浅色遮罩 + 深色标题   ║
+  ╚══════════════════════════════════════════╝
+-->
 <section class="cover cover--magazine" id="cover-magazine">
   <div class="cover__bg">
-    <!-- BG: <img src="assets/bg.jpg" alt=""> -->
+    <!-- BG: 百炼生成的质感/人物/物件背景 -->
+    <!-- <img src="assets/magazine-bg.jpg" alt=""> -->
   </div>
   <div class="cover__overlay"></div>
-  <div class="cover__accent"></div>
+  <div class="cover__divider"></div>
   <div class="cover__content">
     <div class="cover__text">
-      <h1 class="cover__title"><!-- TITLE --></h1>
-      <p class="cover__subtitle"><!-- SUBTITLE --></p>
-      <p class="cover__meta"><!-- META --></p>
+      <h1 class="cover__title"><!-- TITLE: 主标题 --></h1>
+      <p class="cover__subtitle"><!-- SUBTITLE: 副标题 --></p>
+      <p class="cover__meta"><!-- META: 如 VOL.07 · DESIGN 期号+分类 --></p>
     </div>
   </div>
 </section>
 
-<!-- Style 03: 极简抽象 — 纯色底 + 左标题 + 右侧图片 -->
+<!--
+  ╔══════════════════════════════════════════╗
+  ║  03 极简抽象                             ║
+  ║  纯马卡龙色底 + 左标题 + 右侧手绘图标     ║
+  ╚══════════════════════════════════════════╝
+-->
 <section class="cover cover--minimal" id="cover-minimal" data-color="olive">
-  <div class="cover__overlay"></div>
   <div class="cover__content">
     <div class="cover__text">
-      <h1 class="cover__title"><!-- TITLE --></h1>
-      <p class="cover__subtitle"><!-- SUBTITLE --></p>
+      <h1 class="cover__title"><!-- TITLE: 主标题 --></h1>
+      <p class="cover__subtitle"><!-- SUBTITLE: 副标题 --></p>
     </div>
-    <div class="cover__image">
-      <!-- IMG: <img src="assets/icon.png" alt=""> -->
+    <div class="cover__icon">
+      <!-- ICON: 百炼生成的手绘线条图标 -->
+      <!-- <img src="assets/icon.png" alt=""> -->
     </div>
   </div>
 </section>
 
-<!-- Style 04: 像素风 — 全幅像素背景 + 左侧渐变遮罩 + 标题 -->
+<!--
+  ╔══════════════════════════════════════════╗
+  ║  04 像素风                               ║
+  ║  全幅像素画背景 + 左侧暗遮罩 + 金色像素字 ║
+  ╚══════════════════════════════════════════╝
+-->
 <section class="cover cover--pixel" id="cover-pixel">
   <div class="cover__bg">
-    <!-- BG: <img src="assets/bg.png" alt=""> -->
+    <!-- BG: 百炼生成的像素画背景 -->
+    <!-- <img src="assets/pixel-bg.png" alt=""> -->
   </div>
   <div class="cover__overlay"></div>
+  <div class="cover__border"></div>
   <div class="cover__content">
     <div class="cover__text">
-      <h1 class="cover__title"><!-- TITLE --></h1>
+      <h1 class="cover__title"><!-- TITLE: ≤6字，游戏感 --></h1>
       <p class="cover__subtitle"><!-- SUBTITLE --></p>
     </div>
   </div>

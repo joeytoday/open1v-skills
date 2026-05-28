@@ -3,9 +3,9 @@ name: open1v-mpcover-gen
 description: 生成特定风格的公众号封面图。支持4种风格：大字报、杂志、Claude极简、像素。通过百炼CLI调用AI生图。触发词：公众号封面、封面生成、cover、生成封面、做个封面。
 author: joeytoday
 author_url: https://github.com/joeytoday
-version: 4.0
+version: 5.0
 created: 2026-05-28 10:39
-updated: 2026-05-28 13:07
+updated: 2026-05-28 13:30
 published: true
 ---
 
@@ -49,36 +49,35 @@ HTML 模板按 1344×572 布局，Playwright 以 `deviceScaleFactor=2` 截图输
 
 ## 工作流
 
+流程核心：**先生图 → 再用 HTML 叠字 → Playwright 导出 PNG**。
+图片决定遮罩强度和文字配色，所以必须先拿到图。
+
 ### Step 1：理解内容
 
-从用户给的文章标题、摘要或全文中提取三样东西：
+从用户给的文章标题、摘要或全文中提取：
 
-- **核心论点**：这篇文章一句话在说什么
+- **核心论点**：一句话说清这篇文章在讲什么
 - **情绪调性**：严肃/批判/温暖/技术/轻松/荒诞
-- **视觉锚点**：内容中有没有天然适合做画面的意象（物件、场景、隐喻）
-
-这一步决定后续的风格选择和提示词方向。不分析就生图，出来的东西大概率是「正确但空洞」的。
+- **视觉锚点**：内容中适合做背景画面的意象（物件、场景、隐喻）
 
 ### Step 2：风格选择
 
-如果用户已指定风格，跳过此步。
-
-未指定时，调用 `ask_userr_question` 询问：
+用户已指定则跳过。未指定时询问：
 
 ```
 问题: "选一个封面风格"
 选项:
-- 01 大字报 — 深色电影感+大标题+意境物件，严肃/深度话题
-- 02 杂志风 — 纸纹质感+书法/水墨+编辑美学，文化/观点/叙事
-- 03 极简抽象 — 马卡龙纯色+手绘线条图标，技术/产品/概念
-- 04 像素风 — 16-bit游戏像素画，轻松/年轻/趣味
+- 01 大字报 — 电影海报感，暗底+大白字，严肃/深度
+- 02 杂志风 — 独立杂志美学，浅底+精致排版，文化/观点
+- 03 极简抽象 — 纯色底+手绘图标，认知负荷最低，技术/产品
+- 04 像素风 — 16-bit游戏画面，打破常规，轻松/趣味
 - 你来判断
 ```
 
-用户选「你来判断」或未响应时，按内容调性路由：
+自动路由表：
 
-| 调性 | 默认风格 |
-|------|----------|
+| 调性 | 风格 |
+|------|------|
 | 严肃、批判、历史、深度 | 01 大字报 |
 | 文化、观点、人物、叙事 | 02 杂志 |
 | 技术、产品、工具、概念 | 03 极简抽象 |
@@ -86,253 +85,272 @@ HTML 模板按 1344×572 布局，Playwright 以 `deviceScaleFactor=2` 截图输
 
 ### Step 3：标题提炼
 
-从内容中精简出封面标题。规则因风格而异（见下方各风格段落）。
+封面标题是钩子，不是摘要。规则：
 
-核心原则：封面标题是钩子，不是摘要。读者在信息流里扫一眼决定是否点开——标题要制造「想知道更多」的张力。
+| 风格 | 主标题 | 副标题 | 特殊 |
+|------|--------|--------|------|
+| 01 大字报 | ≤10字，观点或悬念 | ≤15字 | 1个关键词用 `<span class="hl">` 红色高亮 |
+| 02 杂志 | ≤10字 | ≤15字 | 底部加 `meta`（如 VOL.07 · DESIGN）|
+| 03 极简 | ≤8字 | ≤12字 | 无装饰 |
+| 04 像素 | ≤6字，动词优先 | ≤10字 | 短促有力，游戏感 |
 
-### Step 4：构建提示词
+### Step 4：构建提示词 & 生图
 
-用下方对应风格的模板填充。填充时注意：
+**关键**：生图的构图必须服务于后续的「遮罩 + 叠字」。所有提示词必须包含构图约束：
 
-- **构图留白**：为文字叠加预留安全区（左侧或中心，视风格而定）
-- **负面约束**：每条提示词末尾附加 `--negative-prompt` 排除不想要的元素
-- **语言**：提示词用英文（生图模型对英文描述响应更稳定）
+> 画面主体/视觉焦点放在**右侧 55-65%** 区域。左侧 35-45% 保持较暗/较简/较虚，为文字遮罩区让位。
 
-### Step 5：生图（作为背景素材）
+**通用负面提示词**（所有风格追加）：
+```
+--negative-prompt "text, words, letters, watermark, logo, signature, border, frame, UI overlay, blurry, low quality, distorted"
+```
 
-生成的图片将作为网页的**全幅背景图**，文字通过 HTML/CSS 叠加在上层。
+#### 01 大字报 — 提示词骨架
+
+```
+Cinematic ultra-wide composition (2.35:1 aspect ratio), dark moody atmosphere.
+[核心物件/场景], positioned in the RIGHT 60% of frame, [姿态/角度].
+Left 35% stays in deep shadow with minimal detail — clean dark area.
+[光影]: dramatic side lighting / volumetric fog / shallow depth of field.
+Film grain, editorial photography quality.
+Color palette: [主色调, 如 cool blue-grey with warm amber accent].
+```
+
+生图目标：右侧有戏剧性的视觉主体，左侧是暗色纯净区（方便叠白字）。
+
+#### 02 杂志风 — 提示词骨架
+
+```
+Modern editorial photograph (2.35:1 ratio), clean sophisticated composition.
+[人物/物件/建筑], positioned in the RIGHT 55% with deliberate asymmetry.
+Left 45% has soft neutral background (off-white / concrete / linen texture).
+Muted desaturated color palette: [2-3色].
+Natural soft lighting, shallow depth of field on subject.
+Aesthetic reference: Monocle / Kinfolk / Cereal magazine photography.
+No Chinese ink, no calligraphy, no traditional elements.
+```
+
+生图目标：右侧有一个优雅的视觉锚点，左侧是浅色质感区（方便叠深色字）。
+
+#### 03 极简抽象 — 提示词骨架
+
+```
+Minimal abstract illustration on solid [色名 + hex] background, entire canvas filled with flat color.
+A simple hand-drawn icon: [概念隐喻], positioned in CENTER or SLIGHTLY RIGHT.
+Black ink lines, rough marker pen texture, intentionally imperfect strokes.
+Childlike simplicity — convey the idea in 3-5 strokes maximum.
+May include white paper rectangle as compositional element.
+No text, no border, no shadow, no gradient, no 3D, no realistic rendering.
+```
+
+生图目标：纯色底上的手绘图标，图标会被放在 HTML 右侧区域。
+
+#### 04 像素风 — 提示词骨架
+
+```
+Pixel art scene (2.35:1 banner), 16-bit retro game aesthetic, crisp sharp pixels.
+[像素场景/角色] in the RIGHT 60% of frame, rich detail in limited palette.
+Left 40% has darker/simpler pixel pattern — reserved for text.
+Color palette: [如 warm amber tones / cool neon cyberpunk / earthy forest].
+No anti-aliasing, no smooth gradients, every edge is a hard pixel step.
+Style reference: [SNES RPG overworld / GBA adventure / cyberpunk cityscape].
+```
+
+生图目标：右侧有精致像素场景，左侧偏暗偏简（方便叠金色像素字）。
+
+### Step 5：执行生图
 
 ```bash
 bl image generate \
   --prompt "<提示词>" \
-  --negative-prompt "text, watermark, logo, border, frame, signature, UI elements" \
+  --negative-prompt "text, words, letters, watermark, logo, signature, border, frame, UI overlay, blurry, low quality, distorted" \
   --size '1344*572' \
   --n 2 \
   --no-prompt-extend \
   --out-dir ./<task-dir>/assets/
 ```
 
-一次出 2 张备选。让用户选一张，或两张都不理想时调整提示词重跑。
+出 2 张备选，展示给用户选择。如果图片主体偏左了（会被遮罩盖住），需要在提示词中加强 "subject on the right side" 约束后重跑。
 
-### Step 6：组装 HTML 网页
+### Step 6：组装 HTML
 
-核心思路：**生图是背景图，标题是前景层**，通过渐变遮罩实现文字可读性。
+拿到用户选定的图后：
 
-1. 拷贝模板：`cp assets/template.html ./<task-dir>/index.html`
-2. 只保留对应风格的 `<section>` 块，删除其他
-3. 替换背景图：将 `<!-- BG: ... -->` 替换为 `<img src="assets/选中的图.jpg" alt="">`
+1. `cp assets/template.html ./<task-dir>/index.html`
+2. 只保留对应风格的 `<section>`，删除其他 3 个
+3. 插入背景图：取消 `<img>` 的注释，填入实际路径
 4. 填入标题/副标题文字
-5. 如果是极简抽象风格，设置 `data-color` 属性匹配配色，并替换右侧图片
+5. **根据实际图片调整遮罩**：
+   - 图片整体偏亮 → 加深 overlay 透明度（如 0.92 → 0.95）
+   - 图片整体偏暗 → 减轻 overlay（如 0.92 → 0.85）
+   - 图片左侧已经很暗 → 可以减轻遮罩，让背景氛围透出更多
+6. 如果是 03 极简抽象：设置 `data-color` 属性，将生图放入 `.cover__icon` 的 `<img>`
 
-**布局架构**（所有风格统一三层结构）：
-
-```
-┌──────────────────────────────────┐
-│  Layer 0: cover__bg (全幅背景图)  │
-│  Layer 1: cover__overlay (渐变遮罩)│
-│  Layer 2: cover__content (文字)    │
-└──────────────────────────────────┘
-```
-
-各风格遮罩策略：
-- 01 大字报：左侧深色渐变遮罩（0.92→透明），白色文字叠左侧
-- 02 杂志风：左侧浅色渐变遮罩（0.95→透明），深色文字叠左侧，竖线分隔
-- 03 极简抽象：纯色底 + 左标题 + 右侧生图（不用全幅背景）
-- 04 像素风：左侧暗色渐变遮罩（0.9→透明），像素字体叠左侧
-
-**设计原则**（参考 impeccable）：
-
-- **arrange**：8px 基础间距系统，标题与副标题间距有节奏感
-- **quieter**：遮罩不过度压暗背景，保留氛围感；文字透明度克制
-- **critique**：信息层级清晰——标题第一眼、副标题第二眼、背景是氛围
-- **polish**：字号对比精确、行高统一、padding 对齐到网格
-
-### Step 7：渲染导出 PNG
+### Step 7：渲染导出
 
 ```bash
 node scripts/render.cjs ./<task-dir>/index.html ./<task-dir>/output/ --scale=2
 ```
 
-默认 @2x 输出（2688×1144px），微信公众号显示清晰。
-
-输出验证：
+验证尺寸：
 ```bash
 sips -g pixelWidth -g pixelHeight ./<task-dir>/output/*.png
 ```
 
-### Step 8：交付
+期望输出：2688×1144px (@2x)。
 
-展示导出的 PNG 图片路径给用户。如果不满意：
-- **标题调整**：直接改 HTML 中的文字，重新渲染（秒级迭代）
-- **图片不满意**：回到 Step 5 重新生图
-- **遮罩/颜色调整**：修改 CSS 中 overlay 的透明度或渐变方向
-- **布局微调**：调整 padding / font-size / max-width
+### Step 8：交付 & 迭代
 
-渲染一次 < 2秒，迭代成本极低。
+展示 PNG 给用户。不满意时的快速迭代路径：
+
+| 问题 | 操作 | 耗时 |
+|------|------|------|
+| 标题文字改 | 改 HTML 文字 → 重新渲染 | 2s |
+| 遮罩太重/太轻 | 改 CSS overlay 的 rgba 值 → 渲染 | 2s |
+| 图片主体位置不对 | 调提示词构图约束 → 重新生图 | 30s |
+| 图片风格不对 | 调提示词氛围描述 → 重新生图 | 30s |
+| 整体换风格 | 回 Step 2 重选 | 1min |
 
 ---
 
-## 四种风格
+## 四种风格详解
 
 ### 01 大字报
 
-暗调电影感背景 + 左侧大标题区 + 右侧意境物件。
+> 读者感受：**"这篇有态度"**
+> 对比策略：亮字 on 暗底（最高对比）
+> 记忆点：一个红色高亮关键词
 
-**视觉语言**：
-- 画面整体暗色调，有电影调色的质感（冷暖对比、明暗层次）
-- 右侧放置与内容相关的核心物件/场景——不是装饰，是视觉论据
-- 左侧 40% 区域保持暗色净空，供标题叠加
-- 光影有戏剧性：侧光、逆光、烟雾、景深虚化
-- 可融入水墨/国画元素，但不是必须——取决于内容调性
+**背景图要求**（给百炼的提示词目标）：
+- 画面整体暗调，电影调色质感
+- 视觉主体（物件/场景/人物剪影）在**右侧 55-65%**
+- 左侧 35% 自然沉入暗部，不放重要元素
+- 光影有戏剧性：侧光、逆光、雾气、景深虚化
 
-**提示词骨架**：
-```
-Cinematic ultra-wide banner (2.35:1), dark atmospheric tone.
-[核心物件/场景描述], positioned in the right 60% of frame.
-Left 40% remains deep shadow with subtle texture, reserved for title overlay.
-[光影氛围描述]: dramatic side lighting / volumetric fog / shallow depth of field.
-Film grain, editorial photography quality. Color palette: [主色调].
-```
+**HTML 叠字效果**：
+- 主标题：68px / 900 / 白色，其中 1 个词用 `<span class="hl">` 变为 `#e8453c` 红
+- 副标题：20px / 300 / 白色 50% 透明
+- 遮罩：左→右渐变，左侧 0.95 不透明 → 右侧透明
 
-**标题规则**：
-- 主标题 ≤ 10 字，提炼为观点或悬念
-- 1 个关键词可强调（后期叠字时用红色或其他对比色）
-- 副标题 ≤ 15 字，补充上下文
-- 字重对比要大：主标题极粗，副标题极细
-
-**适合内容**：深度评论、历史话题、社会观察、纪录片式叙事
+**适合**：深度评论、历史话题、社会观察、纪录片式叙事
 
 ---
 
 ### 02 杂志风
 
-现代编辑美学构图 + 质感背景 + 极端字号对比 + 几何网格感。
+> 读者感受：**"这篇有品位"**
+> 对比策略：暗字 on 浅底（低对比 + 精致排版）
+> 记忆点：一根极细竖线 + 底部期号
 
-**视觉语言**：
-- 背景有质感但偏现代（纸纹、混凝土肌理、布纹、浅灰白），不是水墨宣纸风
-- 画面中有一个强视觉锚点（人物、物件、建筑剪影），与标题区形成空间张力
-- 标题是画面的设计元素——现代无衬线粗体或衬线体，不是书法/水墨
-- 细线分割线、网格辅助线、期刊编号等现代杂志排版元素作为点缀
-- 整体感觉像 Monocle / Kinfolk / Cereal 这类独立杂志的封面
+**背景图要求**：
+- 画面偏浅色调/中性色，有质感（纸纹、混凝土、布纹、建筑）
+- 视觉锚点（人物/物件/建筑剪影）在**右侧 50-60%**
+- 左侧 40% 保持浅色/柔和，像杂志的留白区
+- 配色不超过 3 色，整体降饱和
+- 参考：Monocle / Kinfolk / Cereal 杂志摄影风格
 
-**提示词骨架**：
-```
-Modern editorial magazine cover composition (2.35:1 ratio).
-[人物/物件描述] as central visual anchor, [朝向/姿态].
-Clean minimalist background with subtle texture (concrete / linen / off-white paper).
-Strong geometric composition, asymmetric layout with deliberate negative space.
-Muted sophisticated color palette: [2-3色描述].
-Modern typography aesthetic — bold sans-serif headline as graphic element.
-Monocle / Kinfolk / Cereal magazine visual language.
-No Chinese ink brush, no calligraphy, no traditional stamps.
-```
+**HTML 叠字效果**：
+- 主标题：54px / 800 / 深灰 `#1a1a1a`
+- 副标题：17px / 300 / 中灰 `#666`
+- 底部 meta：11px / 600 / 4px 字间距 / 灰色期号（如 `VOL.07 · DESIGN`）
+- 竖线：`left: 46%` / 1px / `rgba(0,0,0,0.08)` — 若有若无的分隔
+- 遮罩：左→右，浅色 0.97 → 透明
 
-**设计硬规则**：
-- 色彩不超过 3 种主色（底色 + 主体色 + 1 个点缀色）
-- 留白是主动设计，不是内容不够的结果
-- 字号对比做到极端：标题字占画面高度 30%+ 才有杂志感
-- 排版元素偏几何/网格/现代，不用传统中式元素（印章、竖排毛笔字）
-- 不堆装饰——每个元素都有信息功能或节奏功能
-
-**适合内容**：文化评论、人物专访、读书笔记、生活方式、设计观点
+**适合**：文化评论、人物专访、读书笔记、生活方式、设计观点
 
 ---
 
 ### 03 极简抽象
 
-纯色马卡龙底 + 居中手绘线条图标。概念传达靠隐喻，不靠文字。
+> 读者感受：**"这篇很清晰"**
+> 对比策略：白字 on 彩色底（中等对比，靠色块面积取胜）
+> 记忆点：右侧手绘图标
 
-**视觉语言**：
-- 整个画面就是一个纯色背景 + 一个居中的抽象图标
-- 图标用粗黑线条绘制，有手绘的粗糙感（铅笔/马克笔质感，不是矢量精确感）
-- 图标是对文章核心概念的视觉隐喻——不是对内容的字面图示
-- 可以包含白色纸片/方块作为图标的组成部分
-- 整体感觉像 Claude 官方博客的配图风格
+**背景图要求**（与其他风格不同，03 不用全幅背景）：
+- 百炼生成的是一个**手绘风格图标/插画**，不是照片
+- 图标用粗黑线条，铅笔/马克笔质感，故意不完美的笔触
+- 可含白色纸片/方块作为构图元素
+- 图标是概念隐喻——不是字面图示
+- 整体感觉：Claude 官方博客配图
 
-**提示词骨架**：
-```
-Minimal abstract illustration, solid [色名 + hex] background filling entire canvas.
-Centered: a simple hand-drawn icon representing [概念隐喻描述].
-Black ink lines, rough marker pen texture, intentionally imperfect strokes.
-White paper rectangle as part of the icon composition.
-Childlike simplicity — convey the idea in 3-5 strokes maximum.
-No text, no border, no shadow, no gradient, no 3D effect.
-```
+**HTML 叠字效果**：
+- 纯马卡龙色底（不需要遮罩层）
+- 主标题：52px / 700 / 白色，左侧
+- 副标题：17px / 300 / 白色 72% 透明
+- 右侧：百炼生成的图标放在 `.cover__icon` 中
 
 **配色表**：
 
 | 色名 | 色值 | 调性 |
 |------|------|------|
-| 橄榄绿 | #7d8c5c | 技术、开发、工具 |
-| 蜜桃粉 | #e8b4a0 | 写作、创意、人文 |
-| 薰衣草紫 | #9b95b8 | 安全、隐私、信任 |
-| 奶油黄 | #e8d5a3 | 学习、知识、教育 |
-| 雾蓝 | #8fa8b8 | 数据、分析、理性 |
-| 深森绿 | #4a6741 | 自然、可持续、长期主义 |
+| 橄榄绿 | `#7d8c5c` | 技术、开发、工具 |
+| 蜜桃粉 | `#e8b4a0` | 写作、创意、人文 |
+| 薰衣草紫 | `#9b95b8` | 安全、隐私、信任 |
+| 奶油黄 | `#e8d5a3` | 学习、知识、教育 |
+| 雾蓝 | `#8fa8b8` | 数据、分析、理性 |
+| 深森绿 | `#4a6741` | 自然、可持续、长期 |
+| 岩灰 | `#5c6b7a` | 架构、系统、基础设施 |
+| 珊瑚 | `#d4806b` | 设计、美学、体验 |
 
 **概念→隐喻映射**（示例）：
 
-| 文章主题 | 视觉隐喻 |
-|----------|----------|
+| 主题 | 隐喻 |
+|------|------|
 | API 安全 | 锁 + 钥匙孔 |
 | 代码审查 | 花括号 + 放大镜 |
-| 网络连接 | 插头 + 线缆 |
-| 开源协作 | 多只手握住同一个方块 |
+| 开源协作 | 多只手握同一方块 |
 | 数据隐私 | 信封 + 封蜡 |
+| AI 对话 | 望远镜看进镜子 |
 
-映射原则：找到概念中「动作」或「关系」的本质，用最少笔画的物理世界类比表达。避免直白图示（写「AI」不如画一个望远镜看进镜子）。
+映射原则：找概念中「动作」或「关系」的本质，用最少笔画的物理世界类比表达。
 
-**适合内容**：技术博客、产品更新、概念解释、工具介绍
+**适合**：技术博客、产品更新、概念解释、工具介绍
 
 ---
 
 ### 04 像素风
 
-16-bit 游戏美学 + 右侧像素插画 + 左侧留给像素标题。
+> 读者感受：**"这篇有趣"**
+> 对比策略：彩字 on 暗底（像素锐利边缘打破信息流中的平庸）
+> 记忆点：像素字体 + 金色投影 + 可选像素边框
 
-**视觉语言**：
-- 右侧 60% 是精致的像素艺术场景或角色（不是粗糙的 8-bit，是有细节的 16-bit 水平）
-- 左侧 40% 相对干净，留给后期叠加的像素字体标题
-- 整体色调偏复古游戏机：可以是暖调（SFC/GBA 风）或冷调（赛博朋克像素）
-- 可以有简单的像素边框或 UI 元素作为画面框架
-- 像素必须锐利——绝对不要抗锯齿
+**背景图要求**：
+- 16-bit 精致像素画场景/角色（不是粗糙 8-bit）
+- 视觉主体在**右侧 55-65%**
+- 左侧 35% 偏暗或图案简单（方便叠金色字）
+- 像素必须锐利——绝对不抗锯齿
+- 调色板风格：暖调 SFC / 冷调赛博朋克 / 大地色冒险
 
-**提示词骨架**：
-```
-Pixel art banner (2.35:1), 16-bit retro game aesthetic, sharp crisp pixels.
-Right side (60%): [像素场景/角色描述], rich detail in limited palette.
-Left side (40%): darker or simpler background area for text overlay.
-Color palette: [具体色调描述, 如 warm amber / cool neon / earth tone].
-No anti-aliasing, no smooth gradients. Every edge is a hard pixel step.
-Nostalgic [具体游戏风格参考: SNES RPG / GBA adventure / cyberpunk cityscape].
-```
+**HTML 叠字效果**：
+- 主标题：46px / 700 / 等宽字体 / 金色 `#f5d245` / 像素投影 text-shadow
+- 副标题：15px / 400 / 等宽字体 / 白色 50% 透明
+- 遮罩：左→右，深紫 0.92 → 透明
+- 可选装饰：`.cover__border` 金色 15% 透明的像素边框
 
-**标题规则**：
-- 不超过 6 字——像素字体在小尺寸下辨识度有限
-- 标题要有游戏感：动词优先、短促有力
-
-**适合内容**：游戏评测、趣味技术文、怀旧话题、轻松向内容
+**适合**：游戏评测、趣味技术文、怀旧话题、轻松向内容
 
 ---
 
-## 构图通则
+## 设计原则 & 质量检查
 
-不管哪种风格，封面图都需要通过「缩略图测试」：
+### 读者视角六条原则
 
-- 把图缩到 360px 宽，标题是否仍可读
-- 信息流里和其他封面并排时，第一眼能否抓住注意力
-- 背景图视觉重心应偏右，因为左侧被遮罩+文字覆盖
+| # | 原则 | 检验方法 |
+|---|------|----------|
+| P1 | 标题即封面 | 缩到 360px 宽仍能一眼读完标题 |
+| P2 | 图片是氛围载体 | 遮住图片后封面信息量不变 |
+| P3 | 一种对比策略 | 01暗底亮字/02浅底暗字/03彩底白字/04暗底彩字 |
+| P4 | 遮罩有方向 | 遮罩只覆盖左 40-50%，右侧图片保持生动 |
+| P5 | 一个记忆点 | 信息流中能一眼区分这张封面的独特元素 |
+| P6 | 宁少不多 | 封面上只有：标题 + 副标题 + 背景，无 logo/tag/日期 |
 
-**生图构图指引**（给百炼的提示词需引导构图）：
-- 画面主体/视觉焦点放在右侧 50-60% 区域
-- 左侧 40% 保持较暗或较简单的背景（会被遮罩覆盖）
-- 不要在画面中放文字——所有文字由 HTML 叠加
+### 交付前检查清单
 
-**设计质量检查清单**（impeccable 原则）：
-- [ ] 标题字号够大，缩略图可读
-- [ ] 遮罩强度合适——文字可读但不过度遮挡背景
-- [ ] 间距均匀，遵循 8px 网格
-- [ ] 色彩克制，不超过 3 种主色
+- [ ] 缩略图测试：360px 宽度下标题可读
+- [ ] 遮罩强度：文字可读 & 背景氛围透出
+- [ ] 生图主体偏右，未被遮罩完全遮挡
+- [ ] 色彩 ≤ 3 种主色
+- [ ] 文字信息量：主标题 ≤ 10字 + 副标题 ≤ 15字
 
 ---
 
