@@ -1,5 +1,5 @@
 ---
-name: joey-code-sop
+name: open1v-code-sop
 description: Joey 的代码开发 SOP（标准操作流程）。定义了与 Joey 协作开发时必须遵守的工作规范和约束。触发词：开发规范、代码修改、修 bug、解决 issue、代码 SOP。
 version: 1.3
 created: 2026-04-21 17:51
@@ -97,4 +97,4 @@ PR: #xx
 
 ## 版本管理
 
-本技能修改后，须遵循 `joey-skills-manage` 规范完成版本号更新。
+本技能修改后，须遵循 `open1v-skills-manage` 规范完成版本号更新。
