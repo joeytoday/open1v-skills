@@ -4,6 +4,7 @@
 ![License](https://img.shields.io/github/license/joeytoday/open1v-skills?style=flat-square)
 ![Skill](https://img.shields.io/badge/Skill-Agent-111111?style=flat-square)
 ![Qwen Code](https://img.shields.io/badge/Qwen%20Code-Supported-6366f1?style=flat-square)
+![Bailian CLI](https://img.shields.io/badge/Bailian%20CLI-Integrated-FF6A00?style=flat-square)
 ![Claude Code](https://img.shields.io/badge/Claude%20Code-Supported-6B5B95?style=flat-square)
 ![Cursor](https://img.shields.io/badge/Cursor-Supported-222222?style=flat-square)
 
