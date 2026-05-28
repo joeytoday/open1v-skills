@@ -1,59 +1,57 @@
 # open1v-skills
 
-Personal AI skill collection for Qwen Code / Claude Code / Cursor and other AI agents.
+[English](./README.en.md)
 
-## What's This
+个人 AI 技能集合，适配 Qwen Code / Claude Code / Cursor 等 AI Agent 环境。
 
-A set of structured skills that extend AI agents with specialized workflows — cover image generation, writing style guides, code review standards, weekly reviews, and more.
+## 这是什么
 
-Each skill is a self-contained `SKILL.md` file that AI agents can read and follow as instructions.
+一组结构化的 AI 技能文件，让 Agent 拥有特定领域的工作流能力——封面图生成、写作风格指南、代码规范、复盘模板等。
 
-## Skills
+每个技能是一个独立的 `SKILL.md` 文件，Agent 读取后即可按指令执行。
 
-| Skill | Description |
-|-------|-------------|
-| `open1v-mpcover-gen` | WeChat Official Account cover generation (4 visual styles + Bailian CLI) |
-| `open1v-write` | Blog writing in joey's personal style |
-| `open1v-work-write` | Professional/work writing style |
-| `open1v-code-sop` | Code development SOP and conventions |
-| `open1v-skills-manage` | Skills library management rules |
-| `open1v-weekly-review` | Weekly review template and workflow |
-| `open1v-monthly-review` | Monthly review template and workflow |
-| `open1v-counselor` | Self-reflection and coaching prompts |
-| `open1v-ai-rules` | AI operation safety rules for this vault |
-| `open1v-qwencode-post` | Personal blog posts about Qwen Code |
-| `open1v-qa-before-start` | Pre-task Q&A checklist |
-| `open1v-dingtalks` | DingTalk message drafting |
-| `qwencode-*` | Qwen Code product-related skills |
+## 已发布技能
 
-## Usage
+| 技能 | 说明 |
+|------|------|
+| `open1v-mpcover-gen` | 公众号封面生成（4种视觉风格 + 百炼 CLI 生图） |
+| `open1v-code-sop` | 代码开发 SOP 和协作规范 |
 
-### With Qwen Code
+更多技能持续发布中。
+
+## 使用方式
+
+### Qwen Code
 
 ```bash
-# Call a skill directly
+# 直接调用技能
 /skills open1v-mpcover-gen 帮我做个公众号封面，主题是「xxx」
 
-# Or just describe what you need — the agent will match the right skill
-帮我写一篇博客
+# 或者直接描述需求，Agent 会自动匹配
+帮我做个封面
 ```
 
-### With Other Agents
+### Claude Code / Cursor
 
-Copy the skill directory to your agent's skill path (e.g. `~/.claude/skills/`) or point the agent to read the `SKILL.md` file directly.
+把技能目录复制到 Agent 的 skills 路径（如 `~/.claude/skills/`），或让 Agent 直接读取 `SKILL.md` 文件。
 
-## Structure
+### 一键安装
+
+```bash
+git clone https://github.com/joeytoday/open1v-skills.git ~/.agent/skills/open1v-skills
+```
+
+## 目录结构
 
 ```
 open1v-skills/
-├── open1v-mpcover-gen/SKILL.md   ← Cover image generation
-├── open1v-write/SKILL.md         ← Blog writing style
-├── open1v-code-sop/SKILL.md      ← Dev conventions
-├── ...
-└── README.md                     ← This file
+├── open1v-mpcover-gen/SKILL.md   ← 公众号封面生成
+├── open1v-code-sop/SKILL.md      ← 代码开发规范
+├── README.md                     ← 本文件
+└── README.en.md                  ← English version
 ```
 
-## Author
+## 作者
 
 **joeytoday** — [GitHub](https://github.com/joeytoday)
 
