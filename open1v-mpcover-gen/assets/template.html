@@ -1,0 +1,307 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>公众号封面</title>
+<style>
+* { margin: 0; padding: 0; box-sizing: border-box; }
+
+@font-face {
+  font-family: 'Noto Sans SC';
+  src: local('Noto Sans SC'), local('PingFang SC'), local('Microsoft YaHei');
+  font-weight: 100 900;
+}
+
+:root {
+  --cover-width: 2688px;
+  --cover-height: 1152px;
+  --font-main: 'Noto Sans SC', 'PingFang SC', 'Microsoft YaHei', sans-serif;
+  --font-serif: 'Noto Serif SC', 'Source Han Serif SC', 'STSong', serif;
+}
+
+body {
+  background: #1a1a1a;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 40px;
+  padding: 40px;
+}
+
+.cover {
+  width: var(--cover-width);
+  height: var(--cover-height);
+  position: relative;
+  overflow: hidden;
+  display: flex;
+}
+
+/* ===== Style 01: 大字报 ===== */
+.cover--poster {
+  background: #0a0a0b;
+  color: #fff;
+}
+
+.cover--poster .text-zone {
+  width: 40%;
+  padding: 80px 60px;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  position: relative;
+  z-index: 2;
+}
+
+.cover--poster .title {
+  font-family: var(--font-main);
+  font-size: 120px;
+  font-weight: 900;
+  line-height: 1.15;
+  letter-spacing: -2px;
+}
+
+.cover--poster .title .highlight {
+  color: #e63946;
+}
+
+.cover--poster .subtitle {
+  font-family: var(--font-main);
+  font-size: 36px;
+  font-weight: 300;
+  color: rgba(255,255,255,0.6);
+  margin-top: 40px;
+}
+
+.cover--poster .image-zone {
+  width: 60%;
+  position: relative;
+}
+
+.cover--poster .image-zone img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.cover--poster .image-zone::before {
+  content: '';
+  position: absolute;
+  left: 0;
+  top: 0;
+  width: 40%;
+  height: 100%;
+  background: linear-gradient(to right, #0a0a0b, transparent);
+  z-index: 1;
+}
+
+/* ===== Style 02: 杂志风 ===== */
+.cover--magazine {
+  background: #f5f3ef;
+  color: #1a1a1a;
+}
+
+.cover--magazine .text-zone {
+  width: 45%;
+  padding: 80px 60px;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  position: relative;
+}
+
+.cover--magazine .title {
+  font-family: var(--font-main);
+  font-size: 110px;
+  font-weight: 800;
+  line-height: 1.1;
+  letter-spacing: -3px;
+}
+
+.cover--magazine .subtitle {
+  font-family: var(--font-main);
+  font-size: 32px;
+  font-weight: 300;
+  color: #666;
+  margin-top: 32px;
+}
+
+.cover--magazine .meta {
+  font-family: var(--font-main);
+  font-size: 20px;
+  font-weight: 400;
+  color: #999;
+  margin-top: auto;
+  padding-top: 40px;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+}
+
+.cover--magazine .image-zone {
+  width: 55%;
+  position: relative;
+}
+
+.cover--magazine .image-zone img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.cover--magazine .divider {
+  position: absolute;
+  left: 0;
+  top: 80px;
+  bottom: 80px;
+  width: 1px;
+  background: #ddd;
+}
+
+/* ===== Style 03: 极简抽象 ===== */
+.cover--minimal {
+  background: #7d8c5c;
+  color: #1a1a1a;
+}
+
+.cover--minimal .text-zone {
+  width: 45%;
+  padding: 80px 80px;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+}
+
+.cover--minimal .title {
+  font-family: var(--font-main);
+  font-size: 96px;
+  font-weight: 700;
+  line-height: 1.2;
+  color: #fff;
+}
+
+.cover--minimal .subtitle {
+  font-family: var(--font-main);
+  font-size: 32px;
+  font-weight: 300;
+  color: rgba(255,255,255,0.7);
+  margin-top: 24px;
+}
+
+.cover--minimal .image-zone {
+  width: 55%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.cover--minimal .image-zone img {
+  max-width: 70%;
+  max-height: 70%;
+  object-fit: contain;
+}
+
+/* ===== Style 04: 像素风 ===== */
+.cover--pixel {
+  background: #1a1625;
+  color: #fff;
+  image-rendering: pixelated;
+}
+
+.cover--pixel .text-zone {
+  width: 40%;
+  padding: 80px 60px;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+}
+
+.cover--pixel .title {
+  font-family: 'Courier New', monospace;
+  font-size: 96px;
+  font-weight: 700;
+  line-height: 1.2;
+  color: #f0d060;
+  text-shadow: 4px 4px 0 #8b4513;
+}
+
+.cover--pixel .subtitle {
+  font-family: 'Courier New', monospace;
+  font-size: 28px;
+  font-weight: 400;
+  color: rgba(255,255,255,0.6);
+  margin-top: 24px;
+}
+
+.cover--pixel .image-zone {
+  width: 60%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.cover--pixel .image-zone img {
+  max-width: 90%;
+  max-height: 90%;
+  object-fit: contain;
+  image-rendering: pixelated;
+}
+
+/* ===== 配色变量 ===== */
+.cover--minimal[data-color="olive"]    { background: #7d8c5c; }
+.cover--minimal[data-color="peach"]    { background: #e8b4a0; }
+.cover--minimal[data-color="lavender"] { background: #9b95b8; }
+.cover--minimal[data-color="cream"]    { background: #e8d5a3; }
+.cover--minimal[data-color="fog"]      { background: #8fa8b8; }
+.cover--minimal[data-color="forest"]   { background: #4a6741; }
+</style>
+</head>
+<body>
+
+<!-- Style 01: 大字报 -->
+<section class="cover cover--poster" id="cover-poster">
+  <div class="text-zone">
+    <h1 class="title"><!-- TITLE --></h1>
+    <p class="subtitle"><!-- SUBTITLE --></p>
+  </div>
+  <div class="image-zone">
+    <!-- IMAGE: <img src="assets/poster-bg.jpg" alt=""> -->
+  </div>
+</section>
+
+<!-- Style 02: 杂志风 -->
+<section class="cover cover--magazine" id="cover-magazine">
+  <div class="text-zone">
+    <h1 class="title"><!-- TITLE --></h1>
+    <p class="subtitle"><!-- SUBTITLE --></p>
+    <p class="meta"><!-- META --></p>
+  </div>
+  <div class="image-zone">
+    <div class="divider"></div>
+    <!-- IMAGE: <img src="assets/magazine-img.jpg" alt=""> -->
+  </div>
+</section>
+
+<!-- Style 03: 极简抽象 -->
+<section class="cover cover--minimal" id="cover-minimal" data-color="olive">
+  <div class="text-zone">
+    <h1 class="title"><!-- TITLE --></h1>
+    <p class="subtitle"><!-- SUBTITLE --></p>
+  </div>
+  <div class="image-zone">
+    <!-- IMAGE: <img src="assets/minimal-icon.png" alt=""> -->
+  </div>
+</section>
+
+<!-- Style 04: 像素风 -->
+<section class="cover cover--pixel" id="cover-pixel">
+  <div class="text-zone">
+    <h1 class="title"><!-- TITLE --></h1>
+    <p class="subtitle"><!-- SUBTITLE --></p>
+  </div>
+  <div class="image-zone">
+    <!-- IMAGE: <img src="assets/pixel-art.png" alt=""> -->
+  </div>
+</section>
+
+</body>
+</html>

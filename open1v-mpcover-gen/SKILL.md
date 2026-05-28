@@ -3,9 +3,9 @@ name: open1v-mpcover-gen
 description: 生成特定风格的公众号封面图。支持4种风格：大字报、杂志、Claude极简、像素。通过百炼CLI调用AI生图。触发词：公众号封面、封面生成、cover、生成封面、做个封面。
 author: joeytoday
 author_url: https://github.com/joeytoday
-version: 2
+version: 3.0
 created: 2026-05-28 10:39
-updated: 2026-05-28 10:59
+updated: 2026-05-28 12:42
 published: true
 ---
 
@@ -107,16 +107,50 @@ bl image generate \
   --size '2688*1152' \
   --n 2 \
   --no-prompt-extend \
-  --out-dir ./covers/
+  --out-dir ./<task-dir>/assets/
 ```
 
-一次出 2 张备选。如果两张都不理想，调整提示词中的视觉锚点描述或构图指令后重跑。
+一次出 2 张备选。让用户选一张，或两张都不理想时调整提示词重跑。
 
-### Step 6：交付
+### Step 6：组装 HTML
 
-展示生成的图片路径。告知用户：
-- 文字需要后期叠加（推荐工具：Figma / Canva / ImageMagick）
-- 可以对不满意的部分提出修改方向，我会调整提示词重新生成
+从模板 `assets/template.html` 复制到任务目录，填充内容：
+
+1. 拷贝模板：`cp assets/template.html ./<task-dir>/index.html`
+2. 选择对应风格的 `<section>` 块，删除其他风格的块
+3. 填入标题文字（替换 `<!-- TITLE -->` 和 `<!-- SUBTITLE -->`）
+4. 填入生成的图片路径（替换 `<!-- IMAGE: ... -->` 为 `<img src="assets/xxx.jpg" alt="">`）
+5. 如果是极简抽象风格，设置 `data-color` 属性匹配配色
+
+**布局规则**（每种风格都是「标题 + 图片」结构）：
+- 01 大字报：左 40% 标题区 + 右 60% 背景图（带渐变遮罩过渡）
+- 02 杂志风：左 45% 标题区 + 右 55% 图片区（竖线分隔）
+- 03 极简抽象：左 45% 标题区 + 右 55% 图标/图片（图靠右居中）
+- 04 像素风：左 40% 标题区 + 右 60% 像素画（居中展示）
+
+### Step 7：渲染导出 PNG
+
+用 Playwright 截图导出最终封面：
+
+```bash
+node scripts/render.cjs ./<task-dir>/index.html ./<task-dir>/output/
+```
+
+输出验证：
+```bash
+sips -g pixelWidth -g pixelHeight ./<task-dir>/output/*.png
+```
+
+确认尺寸为 2688×1152。
+
+### Step 8：交付
+
+展示导出的 PNG 图片路径给用户。如果不满意：
+- **标题调整**：直接改 HTML 中的文字，重新渲染
+- **图片不满意**：回到 Step 5 重新生图
+- **布局/颜色调整**：修改 HTML 的 inline style，重新渲染
+
+渲染一次只需几秒，迭代成本很低。
 
 ---
 
@@ -154,33 +188,35 @@ Film grain, editorial photography quality. Color palette: [主色调].
 
 ### 02 杂志风
 
-编辑感构图 + 质感纸底 + 字号对比 + 中式点缀元素。
+现代编辑美学构图 + 质感背景 + 极端字号对比 + 几何网格感。
 
 **视觉语言**：
-- 背景是有肌理的纸纹（米色、牛皮纸、宣纸灰），不是纯色平涂
-- 画面中心或右侧有一个强视觉锚点（人物剪影、物件、建筑），与标题字形成穿插关系
-- 标题是画面的一部分，字形本身就是设计元素（书法体/水墨笔触/现代粗黑）
-- 印章、竖排注释文字、细线分割线作为节奏断点
-- 整体感觉像翻开一本高品质独立杂志的封面
+- 背景有质感但偏现代（纸纹、混凝土肌理、布纹、浅灰白），不是水墨宣纸风
+- 画面中有一个强视觉锚点（人物、物件、建筑剪影），与标题区形成空间张力
+- 标题是画面的设计元素——现代无衬线粗体或衬线体，不是书法/水墨
+- 细线分割线、网格辅助线、期刊编号等现代杂志排版元素作为点缀
+- 整体感觉像 Monocle / Kinfolk / Cereal 这类独立杂志的封面
 
 **提示词骨架**：
 ```
-Editorial magazine cover composition (2.35:1 ratio), warm paper texture ground.
+Modern editorial magazine cover composition (2.35:1 ratio).
 [人物/物件描述] as central visual anchor, [朝向/姿态].
-Chinese ink brush aesthetic blended with modern editorial layout sensibility.
-[书法大字描述] integrated into the composition as graphic element.
-Muted color palette: [2-3色描述]. Deliberate asymmetric negative space.
-Traditional red seal stamp accent in [位置].
-Monocle × 良友画报 crossover aesthetic.
+Clean minimalist background with subtle texture (concrete / linen / off-white paper).
+Strong geometric composition, asymmetric layout with deliberate negative space.
+Muted sophisticated color palette: [2-3色描述].
+Modern typography aesthetic — bold sans-serif headline as graphic element.
+Monocle / Kinfolk / Cereal magazine visual language.
+No Chinese ink brush, no calligraphy, no traditional stamps.
 ```
 
 **设计硬规则**：
-- 色彩不超过 3 种主色（纸底色 + 墨色 + 1 个点缀色）
+- 色彩不超过 3 种主色（底色 + 主体色 + 1 个点缀色）
 - 留白是主动设计，不是内容不够的结果
 - 字号对比做到极端：标题字占画面高度 30%+ 才有杂志感
-- 不堆装饰——每个元素都要有信息功能或节奏功能
+- 排版元素偏几何/网格/现代，不用传统中式元素（印章、竖排毛笔字）
+- 不堆装饰——每个元素都有信息功能或节奏功能
 
-**适合内容**：文化评论、人物专访、读书笔记、历史叙事、哲学思辨
+**适合内容**：文化评论、人物专访、读书笔记、生活方式、设计观点
 
 ---
 
@@ -270,8 +306,27 @@ Nostalgic [具体游戏风格参考: SNES RPG / GBA adventure / cyberpunk citysc
 - 画面是否有一个明确的视觉焦点（不是均匀分布的元素糊）
 
 **文字安全区**：
-- 01/02/04 风格：左侧 35-40% 为文字区，生图时该区域不放重要视觉元素
-- 03 风格：无需文字区（纯图传达概念）
+- 所有风格：左侧 40-45% 为标题区（HTML 叠字），生图时该区域不放重要视觉元素
+- 03 极简抽象：图靠右侧，左侧放标题
+
+---
+
+## 目录结构
+
+每次生成封面时，创建任务目录：
+
+```
+open1v-mpcover-gen/
+├── SKILL.md
+├── assets/
+│   └── template.html          ← HTML 模板（4种风格布局）
+├── scripts/
+│   └── render.cjs             ← Playwright 渲染脚本
+└── <task-dir>/                 ← 每次任务的工作目录
+    ├── index.html             ← 从模板复制并填充内容
+    ├── assets/                ← 生成的图片素材
+    └── output/                ← 导出的最终 PNG
+```
 
 **负面提示词**（所有风格通用追加）：
 ```
@@ -303,3 +358,6 @@ blurry, low quality, distorted, extra fingers, mutated
 - 不生成带 UI 界面、带手机框、带浏览器框的封面——那是产品截图不是封面
 - 不把文章内容全塞进封面——封面是钩子，正文在文章里
 - 不自由发挥配色——每种风格有预设色系，在预设范围内选择
+
+## 常见问题排查
+- 如果遇到百炼生图报错404，可排查调用 bailian CLI 可加 `--base-url https://dashscope.aliyuncs.com`，否则 URL 路径会重复导致 404
