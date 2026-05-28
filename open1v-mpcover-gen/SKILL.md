@@ -3,9 +3,9 @@ name: open1v-mpcover-gen
 description: 生成特定风格的公众号封面图。支持4种风格：大字报、杂志、Claude极简、像素。通过百炼CLI调用AI生图。触发词：公众号封面、封面生成、cover、生成封面、做个封面。
 author: joeytoday
 author_url: https://github.com/joeytoday
-version: 3.0
+version: 4.0
 created: 2026-05-28 10:39
-updated: 2026-05-28 12:42
+updated: 2026-05-28 13:07
 published: true
 ---
 
@@ -38,12 +38,12 @@ npm install -g @anthropic/bailian-cli
 
 ## 画布规格
 
-| 用途 | 比例 | 像素 | CLI 参数 |
-|------|------|------|----------|
-| 首图封面 | 2.35:1 | 2688×1152 | `'2688*1152'` |
-| 次图/分享卡 | 1:1 | 1024×1024 | `'1024*1024'` |
+| 用途 | 比例 | CSS 画布 | 导出 @2x | CLI 生图参数 |
+|------|------|----------|----------|--------------|
+| 首图封面 | 2.35:1 | 1344×572 | 2688×1144 | `'1344*572'` |
+| 次图/分享卡 | 1:1 | 512×512 | 1024×1024 | `'1024*1024'` |
 
-21:9 宽幅是公众号头图的核心画布。所有风格的提示词和构图逻辑围绕这个比例设计。
+HTML 模板按 1344×572 布局，Playwright 以 `deviceScaleFactor=2` 截图输出 @2x 高清 PNG。
 
 ---
 
@@ -98,13 +98,15 @@ npm install -g @anthropic/bailian-cli
 - **负面约束**：每条提示词末尾附加 `--negative-prompt` 排除不想要的元素
 - **语言**：提示词用英文（生图模型对英文描述响应更稳定）
 
-### Step 5：生图
+### Step 5：生图（作为背景素材）
+
+生成的图片将作为网页的**全幅背景图**，文字通过 HTML/CSS 叠加在上层。
 
 ```bash
 bl image generate \
   --prompt "<提示词>" \
   --negative-prompt "text, watermark, logo, border, frame, signature, UI elements" \
-  --size '2688*1152' \
+  --size '1344*572' \
   --n 2 \
   --no-prompt-extend \
   --out-dir ./<task-dir>/assets/
@@ -112,45 +114,61 @@ bl image generate \
 
 一次出 2 张备选。让用户选一张，或两张都不理想时调整提示词重跑。
 
-### Step 6：组装 HTML
+### Step 6：组装 HTML 网页
 
-从模板 `assets/template.html` 复制到任务目录，填充内容：
+核心思路：**生图是背景图，标题是前景层**，通过渐变遮罩实现文字可读性。
 
 1. 拷贝模板：`cp assets/template.html ./<task-dir>/index.html`
-2. 选择对应风格的 `<section>` 块，删除其他风格的块
-3. 填入标题文字（替换 `<!-- TITLE -->` 和 `<!-- SUBTITLE -->`）
-4. 填入生成的图片路径（替换 `<!-- IMAGE: ... -->` 为 `<img src="assets/xxx.jpg" alt="">`）
-5. 如果是极简抽象风格，设置 `data-color` 属性匹配配色
+2. 只保留对应风格的 `<section>` 块，删除其他
+3. 替换背景图：将 `<!-- BG: ... -->` 替换为 `<img src="assets/选中的图.jpg" alt="">`
+4. 填入标题/副标题文字
+5. 如果是极简抽象风格，设置 `data-color` 属性匹配配色，并替换右侧图片
 
-**布局规则**（每种风格都是「标题 + 图片」结构）：
-- 01 大字报：左 40% 标题区 + 右 60% 背景图（带渐变遮罩过渡）
-- 02 杂志风：左 45% 标题区 + 右 55% 图片区（竖线分隔）
-- 03 极简抽象：左 45% 标题区 + 右 55% 图标/图片（图靠右居中）
-- 04 像素风：左 40% 标题区 + 右 60% 像素画（居中展示）
+**布局架构**（所有风格统一三层结构）：
+
+```
+┌──────────────────────────────────┐
+│  Layer 0: cover__bg (全幅背景图)  │
+│  Layer 1: cover__overlay (渐变遮罩)│
+│  Layer 2: cover__content (文字)    │
+└──────────────────────────────────┘
+```
+
+各风格遮罩策略：
+- 01 大字报：左侧深色渐变遮罩（0.92→透明），白色文字叠左侧
+- 02 杂志风：左侧浅色渐变遮罩（0.95→透明），深色文字叠左侧，竖线分隔
+- 03 极简抽象：纯色底 + 左标题 + 右侧生图（不用全幅背景）
+- 04 像素风：左侧暗色渐变遮罩（0.9→透明），像素字体叠左侧
+
+**设计原则**（参考 impeccable）：
+
+- **arrange**：8px 基础间距系统，标题与副标题间距有节奏感
+- **quieter**：遮罩不过度压暗背景，保留氛围感；文字透明度克制
+- **critique**：信息层级清晰——标题第一眼、副标题第二眼、背景是氛围
+- **polish**：字号对比精确、行高统一、padding 对齐到网格
 
 ### Step 7：渲染导出 PNG
 
-用 Playwright 截图导出最终封面：
-
 ```bash
-node scripts/render.cjs ./<task-dir>/index.html ./<task-dir>/output/
+node scripts/render.cjs ./<task-dir>/index.html ./<task-dir>/output/ --scale=2
 ```
+
+默认 @2x 输出（2688×1144px），微信公众号显示清晰。
 
 输出验证：
 ```bash
 sips -g pixelWidth -g pixelHeight ./<task-dir>/output/*.png
 ```
 
-确认尺寸为 2688×1152。
-
 ### Step 8：交付
 
 展示导出的 PNG 图片路径给用户。如果不满意：
-- **标题调整**：直接改 HTML 中的文字，重新渲染
+- **标题调整**：直接改 HTML 中的文字，重新渲染（秒级迭代）
 - **图片不满意**：回到 Step 5 重新生图
-- **布局/颜色调整**：修改 HTML 的 inline style，重新渲染
+- **遮罩/颜色调整**：修改 CSS 中 overlay 的透明度或渐变方向
+- **布局微调**：调整 padding / font-size / max-width
 
-渲染一次只需几秒，迭代成本很低。
+渲染一次 < 2秒，迭代成本极低。
 
 ---
 
@@ -301,13 +319,20 @@ Nostalgic [具体游戏风格参考: SNES RPG / GBA adventure / cyberpunk citysc
 
 不管哪种风格，封面图都需要通过「缩略图测试」：
 
-- 把图缩到 360px 宽，标题叠加区是否还能辨认出视觉重心
+- 把图缩到 360px 宽，标题是否仍可读
 - 信息流里和其他封面并排时，第一眼能否抓住注意力
-- 画面是否有一个明确的视觉焦点（不是均匀分布的元素糊）
+- 背景图视觉重心应偏右，因为左侧被遮罩+文字覆盖
 
-**文字安全区**：
-- 所有风格：左侧 40-45% 为标题区（HTML 叠字），生图时该区域不放重要视觉元素
-- 03 极简抽象：图靠右侧，左侧放标题
+**生图构图指引**（给百炼的提示词需引导构图）：
+- 画面主体/视觉焦点放在右侧 50-60% 区域
+- 左侧 40% 保持较暗或较简单的背景（会被遮罩覆盖）
+- 不要在画面中放文字——所有文字由 HTML 叠加
+
+**设计质量检查清单**（impeccable 原则）：
+- [ ] 标题字号够大，缩略图可读
+- [ ] 遮罩强度合适——文字可读但不过度遮挡背景
+- [ ] 间距均匀，遵循 8px 网格
+- [ ] 色彩克制，不超过 3 种主色
 
 ---
 
@@ -318,13 +343,14 @@ Nostalgic [具体游戏风格参考: SNES RPG / GBA adventure / cyberpunk citysc
 ```
 open1v-mpcover-gen/
 ├── SKILL.md
+├── package.json
 ├── assets/
-│   └── template.html          ← HTML 模板（4种风格布局）
+│   └── template.html          ← HTML 模板（4种风格，三层结构）
 ├── scripts/
-│   └── render.cjs             ← Playwright 渲染脚本
+│   └── render.cjs             ← Playwright @2x 渲染脚本
 └── <task-dir>/                 ← 每次任务的工作目录
     ├── index.html             ← 从模板复制并填充内容
-    ├── assets/                ← 生成的图片素材
+    ├── assets/                ← 百炼生成的背景图素材
     └── output/                ← 导出的最终 PNG
 ```
 

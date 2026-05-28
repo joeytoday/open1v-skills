@@ -7,246 +7,268 @@
 <style>
 * { margin: 0; padding: 0; box-sizing: border-box; }
 
-@font-face {
-  font-family: 'Noto Sans SC';
-  src: local('Noto Sans SC'), local('PingFang SC'), local('Microsoft YaHei');
-  font-weight: 100 900;
-}
-
 :root {
-  --cover-width: 2688px;
-  --cover-height: 1152px;
+  --cover-width: 1344px;
+  --cover-height: 572px;
   --font-main: 'Noto Sans SC', 'PingFang SC', 'Microsoft YaHei', sans-serif;
   --font-serif: 'Noto Serif SC', 'Source Han Serif SC', 'STSong', serif;
+  --font-mono: 'JetBrains Mono', 'Fira Code', 'Courier New', monospace;
+
+  /* spacing scale (8px base) */
+  --sp-1: 8px;
+  --sp-2: 16px;
+  --sp-3: 24px;
+  --sp-4: 32px;
+  --sp-5: 40px;
+  --sp-6: 48px;
+  --sp-8: 64px;
+  --sp-10: 80px;
 }
 
 body {
-  background: #1a1a1a;
+  background: #111;
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 40px;
-  padding: 40px;
+  gap: 32px;
+  padding: 32px;
 }
 
+/* ===== Base cover ===== */
 .cover {
   width: var(--cover-width);
   height: var(--cover-height);
   position: relative;
   overflow: hidden;
-  display: flex;
 }
 
-/* ===== Style 01: 大字报 ===== */
-.cover--poster {
-  background: #0a0a0b;
-  color: #fff;
+.cover__bg {
+  position: absolute;
+  inset: 0;
+  z-index: 0;
 }
 
-.cover--poster .text-zone {
-  width: 40%;
-  padding: 80px 60px;
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
-  position: relative;
-  z-index: 2;
-}
-
-.cover--poster .title {
-  font-family: var(--font-main);
-  font-size: 120px;
-  font-weight: 900;
-  line-height: 1.15;
-  letter-spacing: -2px;
-}
-
-.cover--poster .title .highlight {
-  color: #e63946;
-}
-
-.cover--poster .subtitle {
-  font-family: var(--font-main);
-  font-size: 36px;
-  font-weight: 300;
-  color: rgba(255,255,255,0.6);
-  margin-top: 40px;
-}
-
-.cover--poster .image-zone {
-  width: 60%;
-  position: relative;
-}
-
-.cover--poster .image-zone img {
+.cover__bg img {
   width: 100%;
   height: 100%;
   object-fit: cover;
 }
 
-.cover--poster .image-zone::before {
-  content: '';
+.cover__overlay {
   position: absolute;
-  left: 0;
-  top: 0;
-  width: 40%;
-  height: 100%;
-  background: linear-gradient(to right, #0a0a0b, transparent);
+  inset: 0;
   z-index: 1;
 }
 
-/* ===== Style 02: 杂志风 ===== */
-.cover--magazine {
-  background: #f5f3ef;
-  color: #1a1a1a;
+.cover__content {
+  position: relative;
+  z-index: 2;
+  width: 100%;
+  height: 100%;
+  display: flex;
+  align-items: center;
 }
 
-.cover--magazine .text-zone {
-  width: 45%;
-  padding: 80px 60px;
+.cover__text {
   display: flex;
   flex-direction: column;
   justify-content: center;
-  position: relative;
 }
 
-.cover--magazine .title {
+.cover__title {
+  margin: 0;
+}
+
+.cover__subtitle {
+  margin: 0;
+}
+
+/* ===== Style 01: 大字报 ===== */
+.cover--poster .cover__overlay {
+  background: linear-gradient(
+    to right,
+    rgba(8, 8, 10, 0.92) 0%,
+    rgba(8, 8, 10, 0.75) 35%,
+    rgba(8, 8, 10, 0.2) 65%,
+    transparent 100%
+  );
+}
+
+.cover--poster .cover__content {
+  padding: var(--sp-8) var(--sp-6);
+}
+
+.cover--poster .cover__text {
+  max-width: 50%;
+  gap: var(--sp-3);
+}
+
+.cover--poster .cover__title {
   font-family: var(--font-main);
-  font-size: 110px;
-  font-weight: 800;
-  line-height: 1.1;
-  letter-spacing: -3px;
+  font-size: 64px;
+  font-weight: 900;
+  line-height: 1.12;
+  letter-spacing: -1.5px;
+  color: #fff;
 }
 
-.cover--magazine .subtitle {
-  font-family: var(--font-main);
-  font-size: 32px;
-  font-weight: 300;
-  color: #666;
-  margin-top: 32px;
+.cover--poster .cover__title .hl {
+  color: #e05252;
 }
 
-.cover--magazine .meta {
+.cover--poster .cover__subtitle {
   font-family: var(--font-main);
   font-size: 20px;
-  font-weight: 400;
-  color: #999;
-  margin-top: auto;
-  padding-top: 40px;
-  letter-spacing: 2px;
+  font-weight: 300;
+  line-height: 1.5;
+  color: rgba(255, 255, 255, 0.55);
+}
+
+/* ===== Style 02: 杂志风 ===== */
+.cover--magazine .cover__overlay {
+  background: linear-gradient(
+    to right,
+    rgba(245, 243, 239, 0.95) 0%,
+    rgba(245, 243, 239, 0.88) 40%,
+    rgba(245, 243, 239, 0.3) 70%,
+    transparent 100%
+  );
+}
+
+.cover--magazine .cover__content {
+  padding: var(--sp-6) var(--sp-6);
+}
+
+.cover--magazine .cover__text {
+  max-width: 48%;
+  gap: var(--sp-3);
+}
+
+.cover--magazine .cover__title {
+  font-family: var(--font-main);
+  font-size: 56px;
+  font-weight: 800;
+  line-height: 1.1;
+  letter-spacing: -2px;
+  color: #1a1a1a;
+}
+
+.cover--magazine .cover__subtitle {
+  font-family: var(--font-main);
+  font-size: 18px;
+  font-weight: 300;
+  line-height: 1.6;
+  color: #555;
+}
+
+.cover--magazine .cover__meta {
+  font-family: var(--font-main);
+  font-size: 12px;
+  font-weight: 500;
+  letter-spacing: 3px;
   text-transform: uppercase;
+  color: #999;
+  margin-top: var(--sp-4);
 }
 
-.cover--magazine .image-zone {
-  width: 55%;
-  position: relative;
-}
-
-.cover--magazine .image-zone img {
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
-}
-
-.cover--magazine .divider {
+.cover--magazine .cover__accent {
   position: absolute;
-  left: 0;
-  top: 80px;
-  bottom: 80px;
+  left: 47%;
+  top: var(--sp-6);
+  bottom: var(--sp-6);
   width: 1px;
-  background: #ddd;
+  background: rgba(0, 0, 0, 0.1);
+  z-index: 3;
 }
 
 /* ===== Style 03: 极简抽象 ===== */
 .cover--minimal {
   background: #7d8c5c;
-  color: #1a1a1a;
 }
 
-.cover--minimal .text-zone {
-  width: 45%;
-  padding: 80px 80px;
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
+.cover--minimal .cover__overlay {
+  background: linear-gradient(
+    to right,
+    rgba(0, 0, 0, 0.08) 0%,
+    transparent 50%
+  );
 }
 
-.cover--minimal .title {
+.cover--minimal .cover__content {
+  padding: var(--sp-6) var(--sp-8);
+  justify-content: space-between;
+}
+
+.cover--minimal .cover__text {
+  max-width: 45%;
+  gap: var(--sp-2);
+}
+
+.cover--minimal .cover__title {
   font-family: var(--font-main);
-  font-size: 96px;
+  font-size: 52px;
   font-weight: 700;
   line-height: 1.2;
   color: #fff;
 }
 
-.cover--minimal .subtitle {
+.cover--minimal .cover__subtitle {
   font-family: var(--font-main);
-  font-size: 32px;
+  font-size: 18px;
   font-weight: 300;
-  color: rgba(255,255,255,0.7);
-  margin-top: 24px;
+  line-height: 1.5;
+  color: rgba(255, 255, 255, 0.7);
 }
 
-.cover--minimal .image-zone {
-  width: 55%;
+.cover--minimal .cover__image {
+  max-width: 45%;
   display: flex;
   align-items: center;
-  justify-content: center;
+  justify-content: flex-end;
 }
 
-.cover--minimal .image-zone img {
-  max-width: 70%;
-  max-height: 70%;
+.cover--minimal .cover__image img {
+  max-height: 360px;
   object-fit: contain;
 }
 
 /* ===== Style 04: 像素风 ===== */
-.cover--pixel {
-  background: #1a1625;
-  color: #fff;
-  image-rendering: pixelated;
+.cover--pixel .cover__overlay {
+  background: linear-gradient(
+    to right,
+    rgba(20, 16, 32, 0.9) 0%,
+    rgba(20, 16, 32, 0.6) 35%,
+    transparent 70%
+  );
 }
 
-.cover--pixel .text-zone {
-  width: 40%;
-  padding: 80px 60px;
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
+.cover--pixel .cover__content {
+  padding: var(--sp-6) var(--sp-6);
 }
 
-.cover--pixel .title {
-  font-family: 'Courier New', monospace;
-  font-size: 96px;
+.cover--pixel .cover__text {
+  max-width: 45%;
+  gap: var(--sp-2);
+}
+
+.cover--pixel .cover__title {
+  font-family: var(--font-mono);
+  font-size: 48px;
   font-weight: 700;
   line-height: 1.2;
   color: #f0d060;
-  text-shadow: 4px 4px 0 #8b4513;
+  text-shadow: 2px 2px 0 rgba(139, 69, 19, 0.6);
 }
 
-.cover--pixel .subtitle {
-  font-family: 'Courier New', monospace;
-  font-size: 28px;
+.cover--pixel .cover__subtitle {
+  font-family: var(--font-mono);
+  font-size: 16px;
   font-weight: 400;
-  color: rgba(255,255,255,0.6);
-  margin-top: 24px;
+  line-height: 1.5;
+  color: rgba(255, 255, 255, 0.55);
 }
 
-.cover--pixel .image-zone {
-  width: 60%;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-}
-
-.cover--pixel .image-zone img {
-  max-width: 90%;
-  max-height: 90%;
-  object-fit: contain;
-  image-rendering: pixelated;
-}
-
-/* ===== 配色变量 ===== */
+/* ===== 极简抽象配色 ===== */
 .cover--minimal[data-color="olive"]    { background: #7d8c5c; }
 .cover--minimal[data-color="peach"]    { background: #e8b4a0; }
 .cover--minimal[data-color="lavender"] { background: #9b95b8; }
@@ -257,49 +279,61 @@ body {
 </head>
 <body>
 
-<!-- Style 01: 大字报 -->
+<!-- Style 01: 大字报 — 全幅背景图 + 左侧渐变遮罩 + 标题 -->
 <section class="cover cover--poster" id="cover-poster">
-  <div class="text-zone">
-    <h1 class="title"><!-- TITLE --></h1>
-    <p class="subtitle"><!-- SUBTITLE --></p>
+  <div class="cover__bg">
+    <!-- BG: <img src="assets/bg.jpg" alt=""> -->
   </div>
-  <div class="image-zone">
-    <!-- IMAGE: <img src="assets/poster-bg.jpg" alt=""> -->
+  <div class="cover__overlay"></div>
+  <div class="cover__content">
+    <div class="cover__text">
+      <h1 class="cover__title"><!-- TITLE --></h1>
+      <p class="cover__subtitle"><!-- SUBTITLE --></p>
+    </div>
   </div>
 </section>
 
-<!-- Style 02: 杂志风 -->
+<!-- Style 02: 杂志风 — 全幅背景图 + 左侧浅色遮罩 + 标题 + 竖线 -->
 <section class="cover cover--magazine" id="cover-magazine">
-  <div class="text-zone">
-    <h1 class="title"><!-- TITLE --></h1>
-    <p class="subtitle"><!-- SUBTITLE --></p>
-    <p class="meta"><!-- META --></p>
+  <div class="cover__bg">
+    <!-- BG: <img src="assets/bg.jpg" alt=""> -->
   </div>
-  <div class="image-zone">
-    <div class="divider"></div>
-    <!-- IMAGE: <img src="assets/magazine-img.jpg" alt=""> -->
+  <div class="cover__overlay"></div>
+  <div class="cover__accent"></div>
+  <div class="cover__content">
+    <div class="cover__text">
+      <h1 class="cover__title"><!-- TITLE --></h1>
+      <p class="cover__subtitle"><!-- SUBTITLE --></p>
+      <p class="cover__meta"><!-- META --></p>
+    </div>
   </div>
 </section>
 
-<!-- Style 03: 极简抽象 -->
+<!-- Style 03: 极简抽象 — 纯色底 + 左标题 + 右侧图片 -->
 <section class="cover cover--minimal" id="cover-minimal" data-color="olive">
-  <div class="text-zone">
-    <h1 class="title"><!-- TITLE --></h1>
-    <p class="subtitle"><!-- SUBTITLE --></p>
-  </div>
-  <div class="image-zone">
-    <!-- IMAGE: <img src="assets/minimal-icon.png" alt=""> -->
+  <div class="cover__overlay"></div>
+  <div class="cover__content">
+    <div class="cover__text">
+      <h1 class="cover__title"><!-- TITLE --></h1>
+      <p class="cover__subtitle"><!-- SUBTITLE --></p>
+    </div>
+    <div class="cover__image">
+      <!-- IMG: <img src="assets/icon.png" alt=""> -->
+    </div>
   </div>
 </section>
 
-<!-- Style 04: 像素风 -->
+<!-- Style 04: 像素风 — 全幅像素背景 + 左侧渐变遮罩 + 标题 -->
 <section class="cover cover--pixel" id="cover-pixel">
-  <div class="text-zone">
-    <h1 class="title"><!-- TITLE --></h1>
-    <p class="subtitle"><!-- SUBTITLE --></p>
+  <div class="cover__bg">
+    <!-- BG: <img src="assets/bg.png" alt=""> -->
   </div>
-  <div class="image-zone">
-    <!-- IMAGE: <img src="assets/pixel-art.png" alt=""> -->
+  <div class="cover__overlay"></div>
+  <div class="cover__content">
+    <div class="cover__text">
+      <h1 class="cover__title"><!-- TITLE --></h1>
+      <p class="cover__subtitle"><!-- SUBTITLE --></p>
+    </div>
   </div>
 </section>
 
