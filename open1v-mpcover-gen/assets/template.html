@@ -247,25 +247,58 @@ body {
 
 /* ========================================
    03 极简抽象
-   模式: 纯色底 + 左文字 + 右图标
+   模式: 全幅插画 + 彩色渐变遮罩
    ----------------------------------------
    读者感受: "这篇很清晰"
-   对比: 白字 on 彩底
-   记忆点: 右侧手绘图标
+   对比: 白字 on 彩色遮罩
+   记忆点: 单色调沉浸感 + 极简文字
    ======================================== */
 
 .cover--minimal {
   background: #7d8c5c;
 }
 
+/* 全幅背景（插画/手绘图铺满） */
+.cover--minimal .cover__bg {
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+}
+
+.cover--minimal .cover__bg img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+
+/* 彩色遮罩：用配色表的颜色做渐变，左侧浓右侧淡 */
+.cover--minimal .cover__overlay {
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  pointer-events: none;
+  background: linear-gradient(
+    105deg,
+    rgba(125, 140, 92, 0.92) 0%,
+    rgba(125, 140, 92, 0.82) 30%,
+    rgba(125, 140, 92, 0.50) 55%,
+    rgba(125, 140, 92, 0.18) 80%,
+    transparent 100%
+  );
+}
+
 .cover--minimal .cover__content {
+  position: relative;
+  z-index: 2;
+  width: 100%;
+  height: 100%;
   align-items: center;
   padding: 56px 72px;
-  justify-content: space-between;
 }
 
 .cover--minimal .cover__text {
-  max-width: 48%;
+  max-width: 46%;
   display: flex;
   flex-direction: column;
   gap: 14px;
@@ -285,24 +318,11 @@ body {
   font-size: 17px;
   font-weight: 300;
   line-height: 1.6;
-  color: rgba(255, 255, 255, 0.72);
+  color: rgba(255, 255, 255, 0.75);
   max-width: 320px;
 }
 
-.cover--minimal .cover__icon {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  padding-right: 16px;
-}
-
-.cover--minimal .cover__icon img {
-  max-height: 340px;
-  max-width: 440px;
-  object-fit: contain;
-}
-
-/* 配色 */
+/* 配色：data-color 同时控制底色和遮罩色 */
 .cover--minimal[data-color="olive"]    { background: #7d8c5c; }
 .cover--minimal[data-color="peach"]    { background: #e8b4a0; }
 .cover--minimal[data-color="lavender"] { background: #9b95b8; }
@@ -311,6 +331,32 @@ body {
 .cover--minimal[data-color="forest"]   { background: #4a6741; }
 .cover--minimal[data-color="slate"]    { background: #5c6b7a; }
 .cover--minimal[data-color="coral"]    { background: #d4806b; }
+
+/* 遮罩色跟随配色 */
+.cover--minimal[data-color="olive"] .cover__overlay {
+  background: linear-gradient(105deg, rgba(125,140,92,0.92) 0%, rgba(125,140,92,0.82) 30%, rgba(125,140,92,0.50) 55%, rgba(125,140,92,0.18) 80%, transparent 100%);
+}
+.cover--minimal[data-color="peach"] .cover__overlay {
+  background: linear-gradient(105deg, rgba(232,180,160,0.92) 0%, rgba(232,180,160,0.82) 30%, rgba(232,180,160,0.50) 55%, rgba(232,180,160,0.18) 80%, transparent 100%);
+}
+.cover--minimal[data-color="lavender"] .cover__overlay {
+  background: linear-gradient(105deg, rgba(155,149,184,0.92) 0%, rgba(155,149,184,0.82) 30%, rgba(155,149,184,0.50) 55%, rgba(155,149,184,0.18) 80%, transparent 100%);
+}
+.cover--minimal[data-color="cream"] .cover__overlay {
+  background: linear-gradient(105deg, rgba(232,213,163,0.92) 0%, rgba(232,213,163,0.82) 30%, rgba(232,213,163,0.50) 55%, rgba(232,213,163,0.18) 80%, transparent 100%);
+}
+.cover--minimal[data-color="fog"] .cover__overlay {
+  background: linear-gradient(105deg, rgba(143,168,184,0.92) 0%, rgba(143,168,184,0.82) 30%, rgba(143,168,184,0.50) 55%, rgba(143,168,184,0.18) 80%, transparent 100%);
+}
+.cover--minimal[data-color="forest"] .cover__overlay {
+  background: linear-gradient(105deg, rgba(74,103,65,0.92) 0%, rgba(74,103,65,0.82) 30%, rgba(74,103,65,0.50) 55%, rgba(74,103,65,0.18) 80%, transparent 100%);
+}
+.cover--minimal[data-color="slate"] .cover__overlay {
+  background: linear-gradient(105deg, rgba(92,107,122,0.92) 0%, rgba(92,107,122,0.82) 30%, rgba(92,107,122,0.50) 55%, rgba(92,107,122,0.18) 80%, transparent 100%);
+}
+.cover--minimal[data-color="coral"] .cover__overlay {
+  background: linear-gradient(105deg, rgba(212,128,107,0.92) 0%, rgba(212,128,107,0.82) 30%, rgba(212,128,107,0.50) 55%, rgba(212,128,107,0.18) 80%, transparent 100%);
+}
 
 /* ========================================
    04 像素风
@@ -432,19 +478,21 @@ body {
 <!--
   ╔══════════════════════════════════════════════════╗
   ║  03 极简抽象                                     ║
-  ║  文图模式: 纯色底 + 左文字 + 右图标               ║
-  ║  最安静的布局，认知负荷最低                       ║
+  ║  文图模式: 全幅插画 + 彩色渐变遮罩               ║
+  ║  插画铺满画布，左侧叠同色系遮罩，白字浮于上层     ║
+  ║  通过 data-color 控制底色和遮罩色                 ║
   ╚══════════════════════════════════════════════════╝
 -->
 <section class="cover cover--minimal" id="cover-minimal" data-color="olive">
+  <div class="cover__bg">
+    <!-- BG: 百炼生成的插画/手绘风图片（主体偏右，风格简洁） -->
+    <!-- <img src="assets/minimal-bg.png" alt=""> -->
+  </div>
+  <div class="cover__overlay"></div>
   <div class="cover__content">
     <div class="cover__text">
       <h1 class="cover__title"><!-- TITLE: ≤8字 --></h1>
       <p class="cover__subtitle"><!-- SUBTITLE: ≤12字 --></p>
-    </div>
-    <div class="cover__icon">
-      <!-- ICON: 百炼生成的手绘线条图标（纯色背景上的黑线条画） -->
-      <!-- <img src="assets/icon.png" alt=""> -->
     </div>
   </div>
 </section>

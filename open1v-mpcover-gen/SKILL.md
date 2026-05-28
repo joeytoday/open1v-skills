@@ -3,9 +3,9 @@ name: open1v-mpcover-gen
 description: 生成特定风格的公众号封面图。支持4种风格：大字报、杂志、Claude极简、像素。通过百炼CLI调用AI生图。触发词：公众号封面、封面生成、cover、生成封面、做个封面。
 author: joeytoday
 author_url: https://github.com/joeytoday
-version: 5.4
+version: 5.5
 created: 2026-05-28 10:39
-updated: 2026-05-28 16:11
+updated: 2026-05-28 16:41
 published: true
 ---
 
@@ -184,17 +184,19 @@ Absolutely no text, no writing, no letters anywhere in the image.
 
 #### 03 极简抽象 — 提示词骨架
 
+03 的图片会**铺满整个画布**，上面叠彩色遮罩。所以生图需要全幅构图，主体偏右，整体色调与配色表对应色系协调。
+
 ```
-Minimal abstract illustration, solid flat [色名 + hex] color filling the entire background.
-A single hand-drawn icon representing [概念隐喻描述], positioned in the center of canvas.
-Black ink lines only, rough marker pen texture, intentionally imperfect uneven strokes.
-Childlike simplicity — convey the concept in 3-5 strokes maximum.
-May include a white paper rectangle or geometric shape as part of the composition.
-No text, no letters, no numbers, no writing of any kind.
-No border, no shadow, no gradient, no 3D effect, no realistic rendering.
+Elegant illustration (2.35:1 ultra-wide), [手绘/水彩/线描/几何] style.
+[概念隐喻场景描述], positioned in the RIGHT 55-70% of frame.
+Left 35% remains simpler or faded — reserved for text overlay with color mask.
+Muted [色系名] color palette harmonizing with [配色hex], soft and cohesive.
+Artistic texture: watercolor wash / ink sketch / paper grain / subtle noise.
+Clean composition, generous negative space, editorial illustration quality.
+Absolutely no text, no writing, no letters anywhere in the image.
 ```
 
-生图目标：纯色底 + 黑线条手绘图标，图标将被放在 HTML 右侧。
+生图目标：全幅插画铺满画布，主体偏右，整体色调柔和。HTML 会叠加同色系彩色遮罩，左侧文字区100%可读。
 
 #### 04 像素风 — 提示词骨架
 
@@ -246,11 +248,12 @@ bl image generate \
 - 填入 footer 的 meta 信息（期号、分类等）
 - 不需要调遮罩——文字区和图片区完全分离，互不干扰
 
-**03 极简抽象**（纯色底 + 图标模式）：
-- 设置 `data-color` 属性选择底色
-- 将图标路径填入 `.cover__icon` 的 `<img src="...">`
-- 填入标题/副标题
-- 无遮罩、无背景图
+**03 极简抽象**（全幅插画 + 彩色遮罩模式）：
+- 设置 `data-color` 属性选择底色和遮罩色（两者自动联动）
+- 将图片路径填入 `.cover__bg` 的 `<img src="...">`
+- 填入标题/副标题文字
+- 遮罩已内置在 CSS 中（按 `data-color` 自动匹配），一般无需手动调整
+- 如果图片色调和遮罩色冲突严重，可微调 overlay 的 rgba 透明度
 
 ### Step 7：渲染导出
 
@@ -293,7 +296,7 @@ sips -g pixelWidth -g pixelHeight ./output/*.png
 |------|----------|----------|--------|------|
 | 01 大字报 | "有态度" | 全幅背景+左遮罩 | 红色高亮词 | 深度评论、历史、社会观察 |
 | 02 杂志风 | "有品位" | 左文字+右方框图片 | 圆角方框+底部meta | 文化、人物、读书、设计 |
-| 03 极简抽象 | "很清晰" | 纯色底+左文字+右图标 | 手绘图标 | 技术博客、产品更新、概念 |
+| 03 极简抽象 | "很清晰" | 全幅插画+彩色遮罩 | 单色调沉浸感 | 技术博客、产品更新、概念 |
 | 04 像素风 | "有趣" | 全幅背景+左遮罩 | 像素字体+金色投影 | 游戏、趣味技术、怀旧 |
 
 > 每种风格的提示词骨架见 Step 4，HTML 布局细节见 `assets/template.html` 的注释和 CSS。
@@ -321,7 +324,7 @@ sips -g pixelWidth -g pixelHeight ./output/*.png
 | 数据隐私 | 信封 + 封蜡 |
 | AI 对话 | 望远镜看进镜子 |
 
-映射原则：找概念中「动作」或「关系」的本质，用最少笔画的物理世界类比表达。
+映射原则：找概念中「动作」或「关系」的本质，用简洁的视觉场景表达。插画铺满画布，所以可以比图标更丰富，但仍保持克制。
 
 ---
 
