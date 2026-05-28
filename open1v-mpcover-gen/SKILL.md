@@ -3,9 +3,9 @@ name: open1v-mpcover-gen
 description: 生成特定风格的公众号封面图。支持4种风格：大字报、杂志、Claude极简、像素。通过百炼CLI调用AI生图。触发词：公众号封面、封面生成、cover、生成封面、做个封面。
 author: joeytoday
 author_url: https://github.com/joeytoday
-version: 5.0
+version: 5.1
 created: 2026-05-28 10:39
-updated: 2026-05-28 13:30
+updated: 2026-05-28 13:48
 published: true
 ---
 
@@ -96,67 +96,76 @@ HTML 模板按 1344×572 布局，Playwright 以 `deviceScaleFactor=2` 截图输
 
 ### Step 4：构建提示词 & 生图
 
-**关键**：生图的构图必须服务于后续的「遮罩 + 叠字」。所有提示词必须包含构图约束：
+**两个硬约束**（所有风格的提示词必须遵守）：
 
-> 画面主体/视觉焦点放在**右侧 55-65%** 区域。左侧 35-45% 保持较暗/较简/较虚，为文字遮罩区让位。
+1. **构图偏右**：画面视觉主体/焦点必须在**右侧 55-70%** 区域。01/04 风格需要左侧留暗/留简给遮罩；02 风格图片会独立展示在右侧方框中。
+2. **绝对无文字**：提示词中禁止出现任何与文字相关的描述（如 typography、headline、text、title、caption、lettering）。所有文字由 HTML 叠加。
 
-**通用负面提示词**（所有风格追加）：
+**通用负面提示词**（所有风格必须追加）：
 ```
---negative-prompt "text, words, letters, watermark, logo, signature, border, frame, UI overlay, blurry, low quality, distorted"
+--negative-prompt "text, words, letters, numbers, alphabet, characters, writing, caption, title, headline, subtitle, label, watermark, logo, signature, stamp, border, frame, UI, blurry, low quality, distorted"
 ```
 
 #### 01 大字报 — 提示词骨架
 
 ```
-Cinematic ultra-wide composition (2.35:1 aspect ratio), dark moody atmosphere.
-[核心物件/场景], positioned in the RIGHT 60% of frame, [姿态/角度].
-Left 35% stays in deep shadow with minimal detail — clean dark area.
-[光影]: dramatic side lighting / volumetric fog / shallow depth of field.
-Film grain, editorial photography quality.
+Cinematic ultra-wide photograph (2.35:1 aspect ratio), dark moody atmosphere.
+[核心物件/场景描述], positioned prominently in the RIGHT 60% of frame.
+Left 35% remains in deep natural shadow — no objects, no detail, just dark negative space.
+[光影氛围]: dramatic side lighting / volumetric fog / shallow depth of field.
+Film grain texture, editorial photography quality.
 Color palette: [主色调, 如 cool blue-grey with warm amber accent].
+Absolutely no text, no writing, no letters anywhere in the image.
 ```
 
-生图目标：右侧有戏剧性的视觉主体，左侧是暗色纯净区（方便叠白字）。
+生图目标：右侧有戏剧性的视觉主体，左侧是暗色净空。
 
 #### 02 杂志风 — 提示词骨架
 
+02 的图片会被放在**右侧独立方框**中展示（不铺满），所以构图可以更自由，但主体仍需偏右或居中。
+
 ```
-Modern editorial photograph (2.35:1 ratio), clean sophisticated composition.
-[人物/物件/建筑], positioned in the RIGHT 55% with deliberate asymmetry.
-Left 45% has soft neutral background (off-white / concrete / linen texture).
-Muted desaturated color palette: [2-3色].
-Natural soft lighting, shallow depth of field on subject.
-Aesthetic reference: Monocle / Kinfolk / Cereal magazine photography.
-No Chinese ink, no calligraphy, no traditional elements.
+Clean editorial photograph, sophisticated composition, 4:3 or square framing acceptable.
+[人物/物件/建筑/场景描述], as the single clear focal point.
+Soft neutral background (off-white / warm grey / linen / concrete texture).
+Muted desaturated color palette, no more than 3 colors.
+Natural soft diffused lighting, gentle shallow depth of field.
+Photographic style: Monocle / Kinfolk / Cereal magazine.
+No ink brush, no calligraphy, no traditional decorative elements.
+Absolutely no text, no writing, no letters anywhere in the image.
 ```
 
-生图目标：右侧有一个优雅的视觉锚点，左侧是浅色质感区（方便叠深色字）。
+生图目标：一个干净、有品位的视觉主体，背景简洁。图片会被裁切放进方框中。
+
+**注意**：02 的生图尺寸可以用 `'1024*1024'` 正方形（因为会放进方框），也可以继续用 `'1344*572'` 然后靠 `object-fit: cover` 裁切。
 
 #### 03 极简抽象 — 提示词骨架
 
 ```
-Minimal abstract illustration on solid [色名 + hex] background, entire canvas filled with flat color.
-A simple hand-drawn icon: [概念隐喻], positioned in CENTER or SLIGHTLY RIGHT.
-Black ink lines, rough marker pen texture, intentionally imperfect strokes.
-Childlike simplicity — convey the idea in 3-5 strokes maximum.
-May include white paper rectangle as compositional element.
-No text, no border, no shadow, no gradient, no 3D, no realistic rendering.
+Minimal abstract illustration, solid flat [色名 + hex] color filling the entire background.
+A single hand-drawn icon representing [概念隐喻描述], positioned in the center of canvas.
+Black ink lines only, rough marker pen texture, intentionally imperfect uneven strokes.
+Childlike simplicity — convey the concept in 3-5 strokes maximum.
+May include a white paper rectangle or geometric shape as part of the composition.
+No text, no letters, no numbers, no writing of any kind.
+No border, no shadow, no gradient, no 3D effect, no realistic rendering.
 ```
 
-生图目标：纯色底上的手绘图标，图标会被放在 HTML 右侧区域。
+生图目标：纯色底 + 黑线条手绘图标，图标将被放在 HTML 右侧。
 
 #### 04 像素风 — 提示词骨架
 
 ```
-Pixel art scene (2.35:1 banner), 16-bit retro game aesthetic, crisp sharp pixels.
-[像素场景/角色] in the RIGHT 60% of frame, rich detail in limited palette.
-Left 40% has darker/simpler pixel pattern — reserved for text.
-Color palette: [如 warm amber tones / cool neon cyberpunk / earthy forest].
-No anti-aliasing, no smooth gradients, every edge is a hard pixel step.
-Style reference: [SNES RPG overworld / GBA adventure / cyberpunk cityscape].
+Pixel art scene (2.35:1 ultra-wide banner), 16-bit retro game aesthetic.
+[像素场景/角色描述], positioned in the RIGHT 60% of frame with rich pixel detail.
+Left 40% has darker/simpler pixel pattern — minimal visual elements, reserved as empty space.
+Limited color palette: [如 warm amber / cool neon / earthy tones], maximum 16 colors.
+Every edge is a hard pixel step. No anti-aliasing, no smooth gradients, no blur.
+Sharp crisp pixels throughout. Style: [SNES RPG / GBA / cyberpunk].
+Absolutely no text, no pixel font, no letters, no UI text elements.
 ```
 
-生图目标：右侧有精致像素场景，左侧偏暗偏简（方便叠金色像素字）。
+生图目标：右侧精致像素场景，左侧暗/简（留给金色像素字）。
 
 ### Step 5：执行生图
 
@@ -178,13 +187,27 @@ bl image generate \
 
 1. `cp assets/template.html ./<task-dir>/index.html`
 2. 只保留对应风格的 `<section>`，删除其他 3 个
-3. 插入背景图：取消 `<img>` 的注释，填入实际路径
-4. 填入标题/副标题文字
-5. **根据实际图片调整遮罩**：
-   - 图片整体偏亮 → 加深 overlay 透明度（如 0.92 → 0.95）
-   - 图片整体偏暗 → 减轻 overlay（如 0.92 → 0.85）
-   - 图片左侧已经很暗 → 可以减轻遮罩，让背景氛围透出更多
-6. 如果是 03 极简抽象：设置 `data-color` 属性，将生图放入 `.cover__icon` 的 `<img>`
+3. 按风格插入图片和文字：
+
+**01 大字报 / 04 像素风**（全幅背景 + 遮罩模式）：
+- 将图片路径填入 `.cover__bg` 的 `<img src="...">`
+- 填入标题/副标题文字
+- 根据图片明暗调整遮罩 overlay 的 rgba 值：
+  - 图片偏亮 → 遮罩加深（0.95 → 0.97）
+  - 图片偏暗 → 遮罩减轻（0.95 → 0.88）
+  - 图片左侧本就暗 → 遮罩可以更轻
+
+**02 杂志风**（分栏模式）：
+- 将图片路径填入 `.cover__photo` 的 `<img src="...">`
+- 填入 eyebrow（英文小标题）、title（中文主标题）、subtitle（副标题）
+- 填入 footer 的 meta 信息（期号、分类等）
+- 不需要调遮罩——文字区和图片区完全分离，互不干扰
+
+**03 极简抽象**（纯色底 + 图标模式）：
+- 设置 `data-color` 属性选择底色
+- 将图标路径填入 `.cover__icon` 的 `<img src="...">`
+- 填入标题/副标题
+- 无遮罩、无背景图
 
 ### Step 7：渲染导出
 
@@ -240,21 +263,24 @@ sips -g pixelWidth -g pixelHeight ./<task-dir>/output/*.png
 
 > 读者感受：**"这篇有品位"**
 > 对比策略：暗字 on 浅底（低对比 + 精致排版）
-> 记忆点：一根极细竖线 + 底部期号
+> 文图模式：**左文字区(52%) + 右方框图片(48%)**（分栏，不用遮罩）
+> 记忆点：右侧圆角方框图片 + 底部 meta 栏
 
-**背景图要求**：
-- 画面偏浅色调/中性色，有质感（纸纹、混凝土、布纹、建筑）
-- 视觉锚点（人物/物件/建筑剪影）在**右侧 50-60%**
-- 左侧 40% 保持浅色/柔和，像杂志的留白区
-- 配色不超过 3 色，整体降饱和
+**生图要求**：
+- 干净的视觉主体（人物/物件/建筑/静物），背景简洁
+- 配色不超过 3 色，整体降饱和，有质感
+- 图片会被放进右侧**独立方框**中展示（带 6px 圆角）
+- 不需要刻意偏右——因为图片是独立展示，不会被遮罩遮挡
 - 参考：Monocle / Kinfolk / Cereal 杂志摄影风格
 
-**HTML 叠字效果**：
-- 主标题：54px / 800 / 深灰 `#1a1a1a`
-- 副标题：17px / 300 / 中灰 `#666`
-- 底部 meta：11px / 600 / 4px 字间距 / 灰色期号（如 `VOL.07 · DESIGN`）
-- 竖线：`left: 46%` / 1px / `rgba(0,0,0,0.08)` — 若有若无的分隔
-- 遮罩：左→右，浅色 0.97 → 透明
+**HTML 布局**：
+- 左侧 52%：暖灰底 `#f2efe9`
+  - eyebrow（英文小标题）：12px / 500 / 5px 字间距 / 棕色 `#9a7b5a`
+  - 主标题：56px / 900 / 宋体 / 深灰 `#1a1a1a`
+  - 短横线（40px × 2px）
+  - 副标题：17px / 300 / 中灰 `#555`
+  - 底部 footer：11px / 期号+分类信息
+- 右侧 48%：图片方框（padding 24px，圆角 6px）
 
 **适合**：文化评论、人物专访、读书笔记、生活方式、设计观点
 
@@ -340,15 +366,16 @@ sips -g pixelWidth -g pixelHeight ./<task-dir>/output/*.png
 | P1 | 标题即封面 | 缩到 360px 宽仍能一眼读完标题 |
 | P2 | 图片是氛围载体 | 遮住图片后封面信息量不变 |
 | P3 | 一种对比策略 | 01暗底亮字/02浅底暗字/03彩底白字/04暗底彩字 |
-| P4 | 遮罩有方向 | 遮罩只覆盖左 40-50%，右侧图片保持生动 |
+| P4 | 文图分离或定向遮罩 | 文字区100%可读：要么分栏隔开，要么遮罩覆盖 |
 | P5 | 一个记忆点 | 信息流中能一眼区分这张封面的独特元素 |
 | P6 | 宁少不多 | 封面上只有：标题 + 副标题 + 背景，无 logo/tag/日期 |
 
 ### 交付前检查清单
 
 - [ ] 缩略图测试：360px 宽度下标题可读
-- [ ] 遮罩强度：文字可读 & 背景氛围透出
-- [ ] 生图主体偏右，未被遮罩完全遮挡
+- [ ] 文字区可读性：文字区域与图片互不干扰（分栏模式天然满足；遮罩模式需确认强度）
+- [ ] 生图无文字：画面中没有任何文字、字母、数字
+- [ ] 生图构图：01/04 主体偏右未被遮罩遮挡；02/03 主体居中或偏右
 - [ ] 色彩 ≤ 3 种主色
 - [ ] 文字信息量：主标题 ≤ 10字 + 副标题 ≤ 15字
 
@@ -372,10 +399,9 @@ open1v-mpcover-gen/
     └── output/                ← 导出的最终 PNG
 ```
 
-**负面提示词**（所有风格通用追加）：
+**负面提示词**（所有风格必须追加，强力排除文字）：
 ```
-text, watermark, logo, signature, border, frame, page number, UI overlay, 
-blurry, low quality, distorted, extra fingers, mutated
+text, words, letters, numbers, alphabet, characters, writing, caption, title, headline, subtitle, label, watermark, logo, signature, stamp, border, frame, UI, page number, blurry, low quality, distorted
 ```
 
 ---

@@ -39,8 +39,9 @@ async function render(htmlPath, outputDir, scale) {
     deviceScaleFactor: scale,
   });
 
-  await page.goto(`file://${absoluteHtmlPath}`, { waitUntil: 'networkidle' });
-  await page.waitForTimeout(800);
+  await page.goto(`file://${absoluteHtmlPath}`, { waitUntil: 'domcontentloaded' });
+  // 等待图片加载（如有）+ 字体渲染
+  await page.waitForTimeout(1200);
 
   const covers = await page.$$('.cover');
 
