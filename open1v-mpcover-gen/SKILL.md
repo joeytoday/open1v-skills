@@ -3,9 +3,9 @@ name: open1v-mpcover-gen
 description: 生成特定风格的公众号封面图。支持4种风格：大字报、杂志、Claude极简、像素。通过百炼CLI调用AI生图。触发词：公众号封面、封面生成、cover、生成封面、做个封面。
 author: joeytoday
 author_url: https://github.com/joeytoday
-version: 5.3
+version: 5.4
 created: 2026-05-28 10:39
-updated: 2026-05-28 16:02
+updated: 2026-05-28 16:11
 published: true
 ---
 
@@ -15,9 +15,19 @@ published: true
 
 ## 环境准备（首次自动执行）
 
-首次使用时，按以下流程自动检测并配置环境。认证通过后后续使用不再重复。
+首次使用时，按以下流程自动检测并配置环境。依赖安装和认证通过后后续使用不再重复。
 
 ### 自动检测流程
+
+**第零步：安装 Node 依赖**
+
+```bash
+cd <skill目录>/open1v-mpcover-gen && npm install
+```
+
+- `package.json` 已声明 `playwright` 依赖，用于 HTML → PNG 渲染
+- 如果 `node_modules` 已存在则跳过
+- 安装后自动执行 `npx playwright install chromium`（Playwright 需要浏览器内核）
 
 **第一步：检测百炼 CLI 是否安装**
 
@@ -209,7 +219,7 @@ bl image generate \
   --size '1344*572' \
   --n 2 \
   --no-prompt-extend \
-  --out-dir ./<task-dir>/assets/
+  --out-dir ./assets/
 ```
 
 出 2 张备选，展示给用户选择。主体偏左则加强构图约束后重跑。
@@ -218,7 +228,7 @@ bl image generate \
 
 拿到用户选定的图后：
 
-1. `cp assets/template.html ./<task-dir>/index.html`
+1. `cp assets/template.html ./index.html`
 2. 只保留对应风格的 `<section>`，删除其他 3 个
 3. 按风格插入图片和文字：
 
@@ -245,19 +255,27 @@ bl image generate \
 ### Step 7：渲染导出
 
 ```bash
-node scripts/render.cjs ./<task-dir>/index.html ./<task-dir>/output/ --scale=2
+node scripts/render.cjs ./index.html ./output/ --scale=2
 ```
 
 验证尺寸：
 ```bash
-sips -g pixelWidth -g pixelHeight ./<task-dir>/output/*.png
+sips -g pixelWidth -g pixelHeight ./output/*.png
 ```
 
 期望输出：2688×1144px (@2x)。
 
-### Step 8：交付 & 迭代
+### Step 8：交付 & 清理
 
-展示 PNG 给用户。不满意时的快速迭代路径：
+展示 PNG 给用户。确认满意后，自动清理多余文件，只保留交付结构：
+
+```bash
+# 清理：删除未选用的备选图、临时渲染等，只保留最终使用的素材
+# 保留: assets/template.html + 选定的图片, index.html, output/*.png
+# 删除: assets/ 中未使用的备选图片、其他临时文件
+```
+
+不满意时的快速迭代路径：
 
 | 问题 | 操作 | 耗时 |
 |------|------|------|
@@ -333,8 +351,6 @@ sips -g pixelWidth -g pixelHeight ./<task-dir>/output/*.png
 
 ## 目录结构
 
-每次生成封面时，创建任务目录：
-
 ```
 open1v-mpcover-gen/
 ├── SKILL.md
@@ -343,11 +359,13 @@ open1v-mpcover-gen/
 │   └── template.html          ← HTML 模板（4种风格，三层结构）
 ├── scripts/
 │   └── render.cjs             ← Playwright @2x 渲染脚本
-└── <task-dir>/                 ← 每次任务的工作目录
-    ├── index.html             ← 从模板复制并填充内容
-    ├── assets/                ← 百炼生成的背景图素材
-    └── output/                ← 导出的最终 PNG
+├── index.html                 ← 从模板复制并填充内容（每次覆盖）
+└── output/                    ← 导出的最终 PNG
 ```
+
+**最终交付物**：`assets/`（含模板和生成的图片素材）、`index.html`、`output/`。
+
+每次生成时，百炼出图直接存到 `assets/`，`index.html` 就地覆盖，PNG 输出到 `output/`。任务结束后自动清理临时文件（测试渲染、多余的中间产物等），只保留上述交付结构。
 
 
 ---
