@@ -1,0 +1,478 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>电商商品图模板</title>
+<style>
+/* ============================================================
+   电商商品图 HTML 模板
+   4 种布局 × 多种尺寸，用于 Playwright @2x 渲染导出
+   
+   使用方法：
+   1. 复制本文件为 index.html
+   2. 只保留需要的 .product-card 布局（删除其他 3 个 section）
+   3. 替换图片路径和文字内容
+   4. 用 render.cjs 导出 PNG
+   
+   尺寸控制：
+   - 默认 512×512 (1:1 电商主图)
+   - 通过 .product-card 的 width/height 修改画布尺寸
+   - render.cjs 的 --size 参数控制 viewport
+   ============================================================ */
+
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+body {
+  background: #f0f0f0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 40px;
+  padding: 40px;
+  font-family: "PingFang SC", "SF Pro Display", "Microsoft YaHei", "Noto Sans SC", sans-serif;
+  -webkit-font-smoothing: antialiased;
+}
+
+/* ============================================================
+   基础画布
+   ============================================================ */
+
+.product-card {
+  position: relative;
+  width: 512px;
+  height: 512px;
+  overflow: hidden;
+  background: #ffffff;
+}
+
+/* 背景产品图 */
+.product-card__bg {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: center;
+}
+
+/* 文字层 */
+.product-card__text {
+  position: absolute;
+  z-index: 10;
+  display: flex;
+  flex-direction: column;
+}
+
+/* ============================================================
+   通用文字样式
+   ============================================================ */
+
+.headline {
+  font-weight: 800;
+  line-height: 1.15;
+  letter-spacing: -0.02em;
+}
+
+.subtitle {
+  font-weight: 400;
+  line-height: 1.4;
+  letter-spacing: 0.02em;
+}
+
+.tag-group {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+
+.tag {
+  display: inline-flex;
+  align-items: center;
+  padding: 4px 10px;
+  border-radius: 4px;
+  font-weight: 500;
+  white-space: nowrap;
+}
+
+.data-number {
+  font-weight: 900;
+  line-height: 1.0;
+  letter-spacing: -0.03em;
+}
+
+.highlight {
+  color: #e74c3c;
+}
+
+.brand-highlight {
+  color: #ff6b00;
+}
+
+/* ============================================================
+   布局 A：左文右图
+   适合：多卖点展示、功能标注
+   产品图占右侧 55-65%，文字在左侧
+   ============================================================ */
+
+.layout-left-text .product-card__bg {
+  object-position: right center;
+}
+
+.layout-left-text .product-card__text {
+  top: 0;
+  left: 0;
+  width: 45%;
+  height: 100%;
+  padding: 36px 24px;
+  justify-content: center;
+  gap: 12px;
+}
+
+.layout-left-text .headline {
+  font-size: 36px;
+  color: #1a1a1a;
+}
+
+.layout-left-text .subtitle {
+  font-size: 14px;
+  color: #666666;
+  margin-top: 4px;
+}
+
+.layout-left-text .tag-group {
+  margin-top: 12px;
+}
+
+.layout-left-text .tag {
+  font-size: 11px;
+  background: rgba(0, 0, 0, 0.05);
+  color: #444444;
+}
+
+.layout-left-text .cert {
+  margin-top: auto;
+  font-size: 11px;
+  color: #999999;
+}
+
+/* ============================================================
+   布局 B：上文下图
+   适合：大数字冲击力、核心卖点突出
+   产品图占下方 55-65%，文字在顶部
+   ============================================================ */
+
+.layout-top-text .product-card__bg {
+  object-position: center bottom;
+  top: 35%;
+  height: 65%;
+}
+
+.layout-top-text .product-card__text {
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 40%;
+  padding: 28px 32px;
+  justify-content: center;
+  align-items: flex-start;
+  gap: 6px;
+}
+
+.layout-top-text .data-number {
+  font-size: 52px;
+  color: #1a1a1a;
+}
+
+.layout-top-text .headline {
+  font-size: 32px;
+  color: #1a1a1a;
+}
+
+.layout-top-text .subtitle {
+  font-size: 13px;
+  color: #888888;
+  margin-top: 2px;
+}
+
+.layout-top-text .tag-group {
+  position: absolute;
+  bottom: 20px;
+  left: 32px;
+  right: 32px;
+}
+
+.layout-top-text .tag {
+  font-size: 11px;
+  background: rgba(0, 0, 0, 0.06);
+  color: #555555;
+}
+
+/* ============================================================
+   布局 C：中心对称
+   适合：简洁 slogan、品牌调性
+   产品图居中偏下，文字在上方居中
+   ============================================================ */
+
+.layout-center .product-card__bg {
+  object-position: center 60%;
+}
+
+.layout-center .product-card__text {
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 45%;
+  padding: 40px 32px 0;
+  justify-content: center;
+  align-items: center;
+  text-align: center;
+  gap: 8px;
+}
+
+.layout-center .headline {
+  font-size: 38px;
+  color: #1a1a1a;
+}
+
+.layout-center .subtitle {
+  font-size: 14px;
+  color: #888888;
+  padding: 4px 16px;
+  background: rgba(0, 0, 0, 0.04);
+  border-radius: 20px;
+}
+
+/* ============================================================
+   布局 D：环绕标注
+   适合：多功能展示、技术参数
+   产品图居中，文字环绕四周
+   ============================================================ */
+
+.layout-surround .product-card__bg {
+  object-position: center center;
+  /* 产品图占中间 60% 区域 */
+  inset: 15% 20%;
+  width: 60%;
+  height: 70%;
+  object-fit: contain;
+}
+
+.layout-surround .label {
+  position: absolute;
+  z-index: 10;
+  font-size: 12px;
+  font-weight: 600;
+  color: #333333;
+  white-space: nowrap;
+}
+
+/* 标注位置 - 通过 style 属性精确定位 */
+.layout-surround .label--tl { top: 24px; left: 24px; }
+.layout-surround .label--tr { top: 24px; right: 24px; text-align: right; }
+.layout-surround .label--bl { bottom: 24px; left: 24px; }
+.layout-surround .label--br { bottom: 24px; right: 24px; text-align: right; }
+.layout-surround .label--ml { top: 50%; left: 20px; transform: translateY(-50%); }
+.layout-surround .label--mr { top: 50%; right: 20px; transform: translateY(-50%); text-align: right; }
+
+.layout-surround .label .label__title {
+  font-size: 13px;
+  font-weight: 700;
+  color: #1a1a1a;
+}
+
+.layout-surround .label .label__desc {
+  font-size: 11px;
+  font-weight: 400;
+  color: #888888;
+  margin-top: 2px;
+}
+
+/* ============================================================
+   深色背景变体（用于科技感/促销图）
+   在 .product-card 上加 .dark-theme
+   ============================================================ */
+
+.dark-theme {
+  background: #0a0a0a;
+}
+
+.dark-theme .headline {
+  color: #ffffff;
+}
+
+.dark-theme .subtitle {
+  color: rgba(255, 255, 255, 0.7);
+}
+
+.dark-theme .tag {
+  background: rgba(255, 255, 255, 0.1);
+  color: rgba(255, 255, 255, 0.8);
+}
+
+.dark-theme .data-number {
+  color: #ffffff;
+}
+
+.dark-theme .label .label__title {
+  color: #ffffff;
+}
+
+.dark-theme .label .label__desc {
+  color: rgba(255, 255, 255, 0.6);
+}
+
+.dark-theme .cert {
+  color: rgba(255, 255, 255, 0.5);
+}
+
+/* ============================================================
+   促销氛围变体
+   在 .product-card 上加 .promo-theme
+   ============================================================ */
+
+.promo-theme {
+  background: linear-gradient(135deg, #ff6b35 0%, #ff2d55 100%);
+}
+
+.promo-theme .headline {
+  color: #ffffff;
+  text-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+}
+
+.promo-theme .subtitle {
+  color: rgba(255, 255, 255, 0.9);
+}
+
+.promo-theme .tag {
+  background: rgba(255, 255, 255, 0.2);
+  color: #ffffff;
+  backdrop-filter: blur(4px);
+}
+
+.promo-theme .data-number {
+  color: #ffe033;
+  text-shadow: 0 2px 12px rgba(255, 224, 51, 0.3);
+}
+
+/* ============================================================
+   渐变遮罩（用于产品图上方叠文字时增强可读性）
+   ============================================================ */
+
+.overlay-left {
+  position: absolute;
+  inset: 0;
+  z-index: 5;
+  background: linear-gradient(to right, rgba(255,255,255,0.95) 0%, rgba(255,255,255,0.8) 35%, rgba(255,255,255,0) 55%);
+}
+
+.overlay-top {
+  position: absolute;
+  inset: 0;
+  z-index: 5;
+  background: linear-gradient(to bottom, rgba(255,255,255,0.95) 0%, rgba(255,255,255,0.7) 35%, rgba(255,255,255,0) 50%);
+}
+
+.overlay-left.dark {
+  background: linear-gradient(to right, rgba(10,10,10,0.97) 0%, rgba(10,10,10,0.85) 35%, rgba(10,10,10,0) 55%);
+}
+
+.overlay-top.dark {
+  background: linear-gradient(to bottom, rgba(10,10,10,0.95) 0%, rgba(10,10,10,0.7) 35%, rgba(10,10,10,0) 50%);
+}
+
+</style>
+</head>
+<body>
+
+<!-- ============================================================
+     示例 A：左文右图 —— 充电宝（钛合金卖点）
+     参考案例：'钛'薄 '钛'好用
+     ============================================================ -->
+<section>
+<div class="product-card layout-left-text" id="card-left-text">
+  <img class="product-card__bg" src="[产品图路径]" alt="product" />
+  <div class="overlay-left"></div>
+  <div class="product-card__text">
+    <div class="headline">'钛'薄<br>'钛'好用</div>
+    <div class="subtitle">钛合金机身 · 极速双向快充</div>
+    <div class="tag-group">
+      <span class="tag">苹果PD快充</span>
+      <span class="tag">超薄机身</span>
+    </div>
+  </div>
+</div>
+</section>
+
+<!-- ============================================================
+     示例 B：上文下图 —— 充电宝（120W 快充数据冲击）
+     参考案例：120W 超级快充
+     ============================================================ -->
+<section>
+<div class="product-card layout-top-text" id="card-top-text">
+  <img class="product-card__bg" src="[产品图路径]" alt="product" />
+  <div class="overlay-top"></div>
+  <div class="product-card__text">
+    <div class="data-number">120W</div>
+    <div class="headline">超级快充</div>
+    <div class="subtitle">Mini自带双头线，更小、更快、更护机</div>
+  </div>
+  <div class="tag-group" style="position:absolute; bottom:20px; left:24px; z-index:10;">
+    <span class="tag">可上飞机</span>
+    <span class="tag">智能数显</span>
+    <span class="tag">小巧便携</span>
+    <span class="tag">3C认证</span>
+  </div>
+</div>
+</section>
+
+<!-- ============================================================
+     示例 C：中心对称 —— 充电宝（超大容量 slogan）
+     参考案例：一年只充 1 次电
+     ============================================================ -->
+<section>
+<div class="product-card layout-center" id="card-center">
+  <img class="product-card__bg" src="[产品图路径]" alt="product" />
+  <div class="overlay-top"></div>
+  <div class="product-card__text">
+    <div class="headline">一年只充<span class="highlight">1</span>次电</div>
+    <div class="subtitle">充一次用一周</div>
+  </div>
+</div>
+</section>
+
+<!-- ============================================================
+     示例 D：环绕标注 —— 充电宝（多功能展示）
+     参考案例：可折叠插头 + 多功能自带线
+     ============================================================ -->
+<section>
+<div class="product-card layout-surround" id="card-surround">
+  <img class="product-card__bg" src="[产品图路径]" alt="product" />
+  
+  <div class="label label--tl">
+    <div class="label__title">可折叠插头</div>
+    <div class="label__desc">多功能自带线</div>
+  </div>
+  
+  <div class="label label--tr">
+    <div class="label__title">10000/20000mAh</div>
+    <div class="label__desc">22.5W/20W快充</div>
+  </div>
+  
+  <div class="label label--bl">
+    <div class="label__title">次日达</div>
+  </div>
+  
+  <div class="label label--br">
+    <div class="label__title">Magsafe磁吸</div>
+    <div class="label__desc">IP/TC/USB三接口</div>
+  </div>
+</div>
+</section>
+
+</body>
+</html>
