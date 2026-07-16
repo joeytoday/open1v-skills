@@ -1,0 +1,277 @@
+/* ============================================================
+   open1v-product-copy — 产品推广文案公众号杂志风格
+   
+   设计理念：留白充裕、字体优雅、排版克制
+   参考来源：https://github.com/joeytoday/obsidian-mp-publisher
+   ============================================================ */
+
+/* 全局容器 */
+.mp-content-section {
+  max-width: 100%;
+  margin: 0 auto;
+  padding: 16px 20px;
+  font-family: -apple-system, "PingFang SC", "Helvetica Neue", "Microsoft YaHei", sans-serif;
+  font-size: 15px;
+  line-height: 1.8;
+  color: #2c2c2c;
+  background: #ffffff;
+  letter-spacing: 0.5px;
+  word-break: break-all;
+}
+
+/* 一级标题 — 杂志封面标题 */
+.mp-content-section h1 {
+  font-size: 26px;
+  font-weight: 800;
+  color: #1a1a1a;
+  text-align: center;
+  margin: 40px 0 12px;
+  padding: 0;
+  line-height: 1.3;
+  letter-spacing: 1px;
+}
+
+/* 二级标题 — 栏目标题 */
+.mp-content-section h2 {
+  font-size: 19px;
+  font-weight: 700;
+  color: #1a1a1a;
+  margin: 36px 0 16px;
+  padding: 0 0 10px;
+  border-bottom: 1px solid #e8e8e8;
+  letter-spacing: 0.5px;
+}
+
+/* 三级标题 — 段落引导 */
+.mp-content-section h3 {
+  font-size: 16px;
+  font-weight: 600;
+  color: #333333;
+  margin: 28px 0 12px;
+  padding-left: 10px;
+  border-left: 3px solid #c0392b;
+}
+
+/* 正文段落 */
+.mp-content-section p {
+  margin: 0 0 18px;
+  line-height: 2;
+  color: #3c3c3c;
+}
+
+/* 加粗 — 品牌红强调 */
+.mp-content-section strong {
+  color: #c0392b;
+  font-weight: 600;
+}
+
+/* 斜体 — 灰色辅助说明 */
+.mp-content-section em {
+  color: #888888;
+  font-style: normal;
+  font-size: 14px;
+}
+
+/* 引用块 — 杂志 pull quote */
+.mp-content-section blockquote {
+  margin: 24px 0;
+  padding: 20px 24px;
+  background: #fafaf8;
+  border-left: 3px solid #c0392b;
+  border-radius: 0 4px 4px 0;
+  font-size: 15px;
+  line-height: 1.9;
+  color: #555555;
+}
+
+.mp-content-section blockquote p {
+  margin: 0 0 8px;
+  color: #555555;
+}
+
+.mp-content-section blockquote p:last-child {
+  margin-bottom: 0;
+}
+
+/* 无序列表 */
+.mp-content-section ul {
+  margin: 12px 0 20px;
+  padding-left: 0;
+  list-style: none;
+}
+
+.mp-content-section ul li {
+  position: relative;
+  padding: 4px 0 4px 20px;
+  line-height: 1.9;
+  color: #3c3c3c;
+}
+
+.mp-content-section ul li::before {
+  content: "·";
+  position: absolute;
+  left: 4px;
+  color: #c0392b;
+  font-weight: 900;
+  font-size: 18px;
+}
+
+/* 有序列表 */
+.mp-content-section ol {
+  margin: 12px 0 20px;
+  padding-left: 24px;
+  color: #3c3c3c;
+}
+
+.mp-content-section ol li {
+  padding: 4px 0;
+  line-height: 1.9;
+}
+
+/* 图片 — 居中 + 阴影 */
+.mp-content-section img {
+  display: block;
+  max-width: 100%;
+  margin: 20px auto;
+  border-radius: 4px;
+  box-shadow: 0 2px 12px rgba(0, 0, 0, 0.08);
+}
+
+/* 图片说明 — 如果图片后紧跟 em */
+.mp-content-section img + em,
+.mp-content-section p > img + br + em {
+  display: block;
+  text-align: center;
+  font-size: 12px;
+  color: #aaaaaa;
+  margin-top: -12px;
+  margin-bottom: 20px;
+}
+
+/* 分割线 — 优雅三点 */
+.mp-content-section hr {
+  border: none;
+  text-align: center;
+  margin: 32px 0;
+  height: 20px;
+  line-height: 20px;
+}
+
+.mp-content-section hr::before {
+  content: "· · ·";
+  color: #cccccc;
+  font-size: 16px;
+  letter-spacing: 8px;
+}
+
+/* 行内代码 */
+.mp-content-section code {
+  background: #f5f2ef;
+  color: #c0392b;
+  padding: 2px 6px;
+  border-radius: 3px;
+  font-size: 13px;
+  font-family: "SF Mono", "Menlo", monospace;
+}
+
+/* 代码块 */
+.mp-content-section pre {
+  margin: 16px 0 24px;
+  padding: 16px 20px;
+  background: #2d2d2d;
+  border-radius: 6px;
+  overflow-x: auto;
+  line-height: 1.6;
+}
+
+.mp-content-section pre code {
+  background: none;
+  color: #f8f8f2;
+  padding: 0;
+  font-size: 13px;
+}
+
+/* 表格 */
+.mp-content-section table {
+  width: 100%;
+  margin: 16px 0 24px;
+  border-collapse: collapse;
+  font-size: 14px;
+}
+
+.mp-content-section table th {
+  background: #f5f2ef;
+  color: #1a1a1a;
+  font-weight: 600;
+  padding: 10px 12px;
+  text-align: left;
+  border-bottom: 2px solid #e0ddd8;
+}
+
+.mp-content-section table td {
+  padding: 10px 12px;
+  border-bottom: 1px solid #f0ede8;
+  color: #3c3c3c;
+}
+
+.mp-content-section table tr:nth-child(even) td {
+  background: #fafaf8;
+}
+
+/* 链接 — 红色下划线 */
+.mp-content-section a {
+  color: #c0392b;
+  text-decoration: none;
+  border-bottom: 1px solid rgba(192, 57, 43, 0.3);
+}
+
+/* 尾部签名区 */
+.mp-content-section .signature {
+  margin-top: 40px;
+  padding-top: 20px;
+  border-top: 1px solid #e8e8e8;
+  text-align: center;
+  font-size: 13px;
+  color: #aaaaaa;
+  line-height: 2;
+}
+
+/* 产品参数卡片 */
+.mp-content-section .spec-card {
+  margin: 20px 0;
+  padding: 20px;
+  background: #fafaf8;
+  border-radius: 8px;
+  border: 1px solid #f0ede8;
+}
+
+.mp-content-section .spec-card h4 {
+  font-size: 14px;
+  font-weight: 600;
+  color: #888888;
+  text-transform: uppercase;
+  letter-spacing: 2px;
+  margin: 0 0 12px;
+}
+
+/* 卖点高亮块 */
+.mp-content-section .highlight-block {
+  margin: 24px 0;
+  padding: 24px;
+  background: linear-gradient(135deg, #fdf6f0 0%, #faf5f0 100%);
+  border-radius: 8px;
+  text-align: center;
+}
+
+.mp-content-section .highlight-block .number {
+  font-size: 36px;
+  font-weight: 900;
+  color: #c0392b;
+  line-height: 1.2;
+}
+
+.mp-content-section .highlight-block .label {
+  font-size: 14px;
+  color: #888888;
+  margin-top: 4px;
+}

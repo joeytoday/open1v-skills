@@ -1,0 +1,16 @@
+{
+  "name": "open1v-product-visual",
+  "version": "1.0.0",
+  "description": "电商商品图生成 - HTML模板渲染带文字的商品图",
+  "main": "scripts/render.cjs",
+  "scripts": {
+    "render": "node scripts/render.cjs"
+  },
+  "keywords": ["e-commerce", "product-image", "marketing"],
+  "author": "joeytoday",
+  "license": "ISC",
+  "type": "commonjs",
+  "dependencies": {
+    "playwright": "^1.60.0"
+  }
+}

@@ -1,0 +1,13 @@
+{
+  "name": "open1v-product-copy",
+  "version": "1.0.0",
+  "description": "产品推广文案写作 + 公众号发布",
+  "type": "module",
+  "scripts": {
+    "publish": "node scripts/publish.mjs"
+  },
+  "dependencies": {
+    "marked": "^14.0.0",
+    "juice": "^11.0.0"
+  }
+}
