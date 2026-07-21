@@ -542,10 +542,11 @@
   }
 
   function drawCover(ctx, img, W, H) {
-    const ir = img.width / img.height, cr = W / H;
+    const iw = img.naturalWidth || img.width, ih = img.naturalHeight || img.height;
+    const ir = iw / ih, cr = W / H;
     let sw, sh, sx, sy;
-    if (ir > cr) { sh = img.height; sw = sh * cr; sx = (img.width - sw) / 2; sy = 0; }
-    else { sw = img.width; sh = sw / cr; sx = 0; sy = (img.height - sh) / 2; }
+    if (ir > cr) { sh = ih; sw = sh * cr; sx = (iw - sw) / 2; sy = 0; }
+    else { sw = iw; sh = sw / cr; sx = 0; sy = (ih - sh) / 2; }
     ctx.drawImage(img, sx, sy, sw, sh, 0, 0, W, H);
   }
 
@@ -570,8 +571,11 @@
     const fontSize = basePx * (state.w / 900) * s;
     const lineHeight = fontSize * 1.32;
     ctx.font = f.weight + ' ' + fontSize + 'px ' + f.stack;
+    if ('letterSpacing' in ctx) ctx.letterSpacing = (fontSize * 0.02) + 'px';
     ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
-    const lines = wrapText(ctx, title.innerText, W * 0.88);
+    // 换行宽度与预览一致：.cover__content 左右 padding 7%，标题 max-width 88%
+    const wrapWidth = W * (1 - 0.07 * 2) * 0.88;
+    const lines = wrapText(ctx, title.innerText, wrapWidth);
     const textH = lines.length * lineHeight;
 
     let logoH = 0, gap = 0;

@@ -3,7 +3,7 @@ name: open1v-openai-cover
 description: 生成 OpenAI 风格公众号封面图。四种风格：实物材质、晕染渐变、光束弧影、波形水彩。支持色系指定、字体选择、多比例画布。百炼 CLI 生图，HTML 组装，浏览器导出。触发词：OpenAI封面、openai cover、实物封面、晕染封面、光束封面、波形封面、播客封面、生成封面图。
 author: joeytoday
 author_url: https://github.com/joeytoday
-version: 1.10
+version: 1.13
 created: 2026-07-20
 updated: 2026-07-21
 ---
@@ -220,30 +220,28 @@ bl image generate \
 
 ### Step 5：组装 HTML
 
-用构建脚本生成 HTML，**图片会内嵌为 data URI**（避免 `file://` 下画布被污染导致无法导出）。每个选定风格传一张图，格式 `"风格名=图片路径"`。
+用构建脚本生成 HTML，**图片会内嵌为 data URI**（避免 `file://` 下画布被污染导致无法导出）。
 
-**用户 @ 引用了文章** → 用 `--name` 指定输出文件名为文章文件名（不含扩展名）：
+**推荐：`--dir` 把对应 image 文件夹的全部图片都装进「底图」切换器**，用户在页面上逐张对比挑选（`bl --n 2` 一次出 2 张，多跑几次文件夹里会攒下多张，全部可挑）：
 
 ```bash
-node scripts/build.cjs --name "<文章文件名>" "<文章标题>" "<风格名>=<图片路径>" ["<风格名>=<图片路径>" ...]
+node scripts/build.cjs --name "<文章文件名>" --dir output/image "<文章标题>"
 ```
 
-**未引用文章** → 省略 `--name`，默认输出 `index.html`：
+第二篇文章用 `--dir output/image-1`，依次类推。文件夹图片按文件名排序，自动生成标签（实物/晕染/光束弧影/波形 + 序号）。
+
+**也可手动指定单张/多张**（格式 `"风格名=图片路径"`，可与 `--dir` 混用，追加在文件夹图片之后）：
 
 ```bash
-node scripts/build.cjs "<文章标题>" "<风格名>=<图片路径>" ["<风格名>=<图片路径>" ...]
+node scripts/build.cjs --name "<文章文件名>" "<文章标题>" "晕染=output/image/image_xxx.png"
 ```
 
-示例（@ 引用了文章 `my-post.md`，单风格）：
+**未引用文章** → 省略 `--name`，默认输出 `index.html`。
+
+示例（@ 引用了文章 `my-post.md`，底图取 image 文件夹全部）：
 
 ```bash
-node scripts/build.cjs --name "my-post" "一句话生成封面" "晕染=output/image/image_xxx.png"
-```
-
-示例（多风格，页面出现「底图」切换器）：
-
-```bash
-node scripts/build.cjs --name "my-post" "一句话生成封面" "实物=output/image/a.png" "波形=output/image/b.png" "光束=output/image/c.png"
+node scripts/build.cjs --name "my-post" --dir output/image "一句话生成封面"
 ```
 
 风格名会显示在底图切换器上。多张时页面可点缩略图切换底图对比；单张时切换器自动隐藏。
