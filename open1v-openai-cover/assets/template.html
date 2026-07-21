@@ -1,0 +1,629 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>封面工坊 · Cover Studio</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Serif+SC:wght@600;700;900&family=ZCOOL+QingKe+HuangYou&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --workspace: #efeeeb;
+    --panel: #ffffff;
+    --ink: #1e1c18;
+    --muted: #8b877c;
+    --line: #e6e3dc;
+    --accent: #d9481f;
+    --accent-deep: #b93a15;
+    --accent-soft: #fbeee8;
+    --dot: #d9d7d0;
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  html, body { height: 100%; }
+
+  body {
+    font-family: "PingFang SC", "Helvetica Neue", system-ui, sans-serif;
+    color: var(--ink);
+    background: var(--workspace);
+    display: flex;
+    overflow: hidden;
+  }
+
+  /* ============ 左侧控制台 ============ */
+  .panel {
+    width: 300px; flex-shrink: 0; height: 100%;
+    background: var(--panel);
+    border-right: 1px solid var(--line);
+    display: flex; flex-direction: column;
+    overflow-y: auto;
+  }
+
+  .brand {
+    display: flex; align-items: center; gap: 12px;
+    padding: 22px 22px 18px;
+    border-bottom: 1px solid var(--line);
+  }
+  .brand__mark {
+    width: 40px; height: 40px; flex-shrink: 0;
+    background: var(--accent); color: #fff; border-radius: 9px;
+    display: flex; align-items: center; justify-content: center;
+    font-family: "ZCOOL QingKe HuangYou", sans-serif; font-size: 22px;
+    box-shadow: 0 3px 10px rgba(217,72,31,.32);
+  }
+  .brand__name { font-family: "ZCOOL QingKe HuangYou", sans-serif; font-size: 21px; line-height: 1.1; letter-spacing: .02em; }
+  .brand__sub { font-size: 10px; letter-spacing: .22em; color: var(--muted); font-family: ui-monospace, "SF Mono", monospace; margin-top: 3px; }
+
+  .section { padding: 18px 22px 6px; }
+  .section__label {
+    font-size: 11px; letter-spacing: .18em; color: var(--muted);
+    display: flex; align-items: center; gap: 7px; margin-bottom: 12px;
+  }
+  .section__label::before {
+    content: ""; width: 5px; height: 5px;
+    background: var(--accent); border-radius: 1px; transform: rotate(45deg);
+  }
+
+  /* 画布尺寸 */
+  .ratio-chips { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-bottom: 14px; }
+  .ratio-chip {
+    border: 1.5px solid var(--line); border-radius: 9px; background: #fff;
+    padding: 9px 10px; cursor: pointer;
+    display: flex; align-items: center; gap: 9px;
+    transition: border-color .16s, background .16s, transform .16s;
+  }
+  .ratio-chip:hover { border-color: #c9c5bb; transform: translateY(-1px); }
+  .ratio-chip.active { border-color: var(--accent); background: var(--accent-soft); }
+  .ratio-chip__icon {
+    flex-shrink: 0; border: 1.5px solid var(--muted); border-radius: 2px;
+    transition: border-color .16s;
+  }
+  .ratio-chip.active .ratio-chip__icon { border-color: var(--accent); }
+  .ratio-chip__label { font-size: 12px; line-height: 1.25; text-align: left; }
+  .ratio-chip__label small { display: block; font-size: 9.5px; color: var(--muted); font-family: ui-monospace, monospace; }
+  .ratio-chip.active .ratio-chip__label small { color: var(--accent-deep); }
+
+  .dim-row { display: flex; align-items: center; gap: 8px; margin-bottom: 8px; }
+  .dim-row input {
+    width: 100%; border: 1.5px solid var(--line); border-radius: 8px;
+    padding: 7px 10px; font-size: 12.5px;
+    font-family: ui-monospace, "SF Mono", monospace;
+    color: var(--ink); background: #fff; outline: none;
+    transition: border-color .16s;
+  }
+  .dim-row input:focus { border-color: var(--accent); }
+  .dim-row__x { color: var(--muted); font-size: 12px; }
+  .gen-hint { font-size: 10.5px; color: var(--muted); font-family: ui-monospace, monospace; margin-bottom: 6px; }
+  .gen-hint b { color: var(--accent-deep); font-weight: 600; }
+  .ratio-warn { display: none; font-size: 10.5px; color: var(--accent-deep); margin-bottom: 6px; }
+
+  /* 底图切换器 */
+  .bg-list { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+  .bg-card {
+    border: 1.5px solid var(--line); border-radius: 9px; overflow: hidden;
+    cursor: pointer; background: #fff; padding: 0; text-align: left;
+    transition: border-color .16s, transform .16s;
+  }
+  .bg-card:hover { border-color: #c9c5bb; transform: translateY(-1px); }
+  .bg-card.active { border-color: var(--accent); }
+  .bg-card__thumb { width: 100%; height: 54px; object-fit: cover; display: block; }
+  .bg-card__label {
+    font-size: 11px; padding: 5px 8px; color: var(--muted);
+    white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+  }
+  .bg-card.active .bg-card__label { color: var(--accent-deep); font-weight: 600; }
+
+  /* 字体卡片 */
+  .fonts { display: flex; flex-direction: column; gap: 8px; }
+  .font-card {
+    border: 1.5px solid var(--line); border-radius: 9px; padding: 9px 13px; cursor: pointer;
+    display: flex; align-items: baseline; justify-content: space-between;
+    transition: border-color .16s, background .16s, transform .16s; background: #fff;
+  }
+  .font-card:hover { border-color: #c9c5bb; transform: translateX(2px); }
+  .font-card.active { border-color: var(--accent); background: var(--accent-soft); }
+  .font-card__sample { font-size: 17px; line-height: 1.2; }
+  .font-card__name { font-size: 10px; color: var(--muted); letter-spacing: .06em; }
+  .font-card.active .font-card__name { color: var(--accent-deep); }
+  .f-pingfang .font-card__sample { font-family: "PingFang SC", sans-serif; font-weight: 600; }
+  .f-songti .font-card__sample { font-family: "Songti SC", "SimSun", serif; font-weight: 700; }
+  .f-heiti .font-card__sample { font-family: "Heiti SC", "Microsoft YaHei", sans-serif; font-weight: 900; }
+  .f-noto .font-card__sample { font-family: "Noto Serif SC", serif; font-weight: 700; }
+  .f-zcool .font-card__sample { font-family: "ZCOOL QingKe HuangYou", sans-serif; font-weight: 400; }
+
+  /* 滑杆 */
+  .slider-row { display: flex; align-items: center; gap: 12px; margin-bottom: 14px; }
+  .slider-row__name { font-size: 12px; color: var(--muted); width: 34px; flex-shrink: 0; }
+  .slider-row__val { font-size: 11px; color: var(--accent-deep); font-family: ui-monospace, "SF Mono", monospace; width: 42px; text-align: right; flex-shrink: 0; }
+  input[type=range] {
+    flex: 1; -webkit-appearance: none; appearance: none; height: 3px; border-radius: 2px;
+    background: linear-gradient(to right, var(--accent) var(--fill,50%), var(--line) var(--fill,50%));
+    outline: none;
+  }
+  input[type=range]::-webkit-slider-thumb {
+    -webkit-appearance: none; appearance: none; width: 15px; height: 15px; border-radius: 50%;
+    background: #fff; border: 2.5px solid var(--accent); cursor: pointer; transition: transform .15s;
+  }
+  input[type=range]::-webkit-slider-thumb:hover { transform: scale(1.2); }
+
+  /* 文字颜色 */
+  .swatches { display: flex; gap: 10px; margin-bottom: 14px; }
+  .swatch { width: 26px; height: 26px; border-radius: 50%; cursor: pointer; border: 1.5px solid var(--line); transition: transform .15s, box-shadow .15s; }
+  .swatch:hover { transform: scale(1.12); }
+  .swatch.active { box-shadow: 0 0 0 2px #fff, 0 0 0 4px var(--accent); }
+  .sw-white { background: #ffffff; }
+  .sw-black { background: #1e1c18; }
+  .sw-cream { background: #f2e6cf; }
+
+  /* Logo */
+  .logo-btn {
+    display: inline-flex; align-items: center; gap: 6px;
+    font-size: 12px; color: var(--muted);
+    border: 1.5px dashed var(--line); border-radius: 8px; padding: 7px 12px;
+    cursor: pointer; background: none; transition: border-color .15s, color .15s;
+  }
+  .logo-btn:hover { border-color: var(--accent); color: var(--accent-deep); }
+  .logo-status { font-size: 11px; color: var(--accent-deep); margin-left: 8px; }
+
+  /* 导出 */
+  .sizes { display: flex; flex-direction: column; gap: 7px; margin-bottom: 16px; }
+  .size-opt {
+    display: flex; align-items: center; justify-content: space-between;
+    border: 1.5px solid var(--line); border-radius: 9px; padding: 9px 13px; cursor: pointer;
+    transition: border-color .16s, background .16s;
+  }
+  .size-opt:hover { border-color: #c9c5bb; }
+  .size-opt.active { border-color: var(--accent); background: var(--accent-soft); }
+  .size-opt__label { font-size: 12.5px; }
+  .size-opt__dim { font-size: 10.5px; color: var(--muted); font-family: ui-monospace, "SF Mono", monospace; }
+  .size-opt.active .size-opt__dim { color: var(--accent-deep); }
+
+  .export-btn {
+    width: 100%; background: var(--accent); color: #fff; border: none; border-radius: 10px;
+    padding: 13px 0; font-size: 14.5px; font-weight: 700; letter-spacing: .08em; cursor: pointer;
+    display: flex; align-items: center; justify-content: center; gap: 8px;
+    transition: background .16s, transform .16s, box-shadow .16s;
+    box-shadow: 0 4px 14px rgba(217,72,31,.3);
+  }
+  .export-btn:hover { background: var(--accent-deep); transform: translateY(-1.5px); box-shadow: 0 6px 18px rgba(217,72,31,.38); }
+  .export-btn:active { transform: translateY(0); }
+  .export-hint { text-align: center; font-size: 10px; color: var(--muted); font-family: ui-monospace, monospace; margin: 9px 0 22px; }
+
+  /* ============ 右侧画布区 ============ */
+  .stage {
+    flex: 1; height: 100%;
+    display: flex; flex-direction: column; align-items: center; justify-content: center;
+    padding: 40px;
+    background-image: radial-gradient(var(--dot) 1px, transparent 1px);
+    background-size: 22px 22px;
+  }
+  .canvas-wrap { position: relative; }
+  .cover {
+    position: relative; overflow: hidden; background: #000;
+    transform-origin: top left;
+    box-shadow: 0 18px 50px rgba(30,28,24,.22), 0 2px 8px rgba(30,28,24,.12);
+    transition: width .25s, height .25s;
+  }
+  .cover__bg { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; }
+  .cover__overlay { position: absolute; inset: 0; background: #000; opacity: var(--overlay, .15); pointer-events: none; }
+  .cover__content {
+    position: absolute; inset: 0;
+    display: flex; flex-direction: column; align-items: center; justify-content: center;
+    text-align: center; padding: 8% 7%;
+  }
+  .cover__logo { max-height: 12%; max-width: 40%; object-fit: contain; margin-bottom: 4.5%; }
+  .cover__title {
+    color: var(--title-color, #fff);
+    font-size: var(--title-size, 42px);
+    line-height: 1.32; letter-spacing: .02em;
+    max-width: 88%; white-space: pre-wrap; outline: none; cursor: text;
+    text-shadow: 0 2px 14px rgba(0,0,0,.45);
+    border-radius: 4px; transition: box-shadow .15s;
+  }
+  .cover__title:hover { box-shadow: 0 0 0 1.5px rgba(255,255,255,.45); }
+  .cover__title:focus { box-shadow: 0 0 0 2px var(--accent); }
+  .cover__title:empty::before { content: "点击输入标题"; opacity: .55; }
+
+  .cover.f-pingfang .cover__title { font-family: "PingFang SC", sans-serif; font-weight: 600; }
+  .cover.f-songti .cover__title { font-family: "Songti SC", "SimSun", serif; font-weight: 700; }
+  .cover.f-heiti .cover__title { font-family: "Heiti SC", "Microsoft YaHei", sans-serif; font-weight: 900; }
+  .cover.f-noto .cover__title { font-family: "Noto Serif SC", "Songti SC", serif; font-weight: 700; }
+  .cover.f-zcool .cover__title { font-family: "ZCOOL QingKe HuangYou", "PingFang SC", sans-serif; font-weight: 400; }
+
+  .stage__meta { margin-top: 20px; font-size: 11px; color: var(--muted); font-family: ui-monospace, "SF Mono", monospace; letter-spacing: .08em; }
+</style>
+</head>
+<body>
+
+  <aside class="panel">
+    <div class="brand">
+      <div class="brand__mark">封</div>
+      <div>
+        <div class="brand__name">封面工坊</div>
+        <div class="brand__sub">COVER STUDIO</div>
+      </div>
+    </div>
+
+    <div class="section">
+      <div class="section__label">画布尺寸</div>
+      <div class="ratio-chips" id="ratioChips">
+        <button class="ratio-chip active" data-key="shoutu">
+          <span class="ratio-chip__icon" style="width:24px;height:10px"></span>
+          <span class="ratio-chip__label">公众号首图<small>900×383 · 2.35:1</small></span>
+        </button>
+        <button class="ratio-chip" data-key="square">
+          <span class="ratio-chip__icon" style="width:16px;height:16px"></span>
+          <span class="ratio-chip__label">正方形<small>1080×1080 · 1:1</small></span>
+        </button>
+        <button class="ratio-chip" data-key="wide">
+          <span class="ratio-chip__icon" style="width:22px;height:12px"></span>
+          <span class="ratio-chip__label">横版<small>1280×720 · 16:9</small></span>
+        </button>
+        <button class="ratio-chip" data-key="tall">
+          <span class="ratio-chip__icon" style="width:13px;height:17px"></span>
+          <span class="ratio-chip__label">竖版<small>1080×1440 · 3:4</small></span>
+        </button>
+      </div>
+      <div class="dim-row">
+        <input type="number" id="dimW" value="900" min="100" max="4096">
+        <span class="dim-row__x">×</span>
+        <input type="number" id="dimH" value="383" min="100" max="4096">
+      </div>
+      <div class="gen-hint">建议生图尺寸 <b id="genSize">1344 × 572</b></div>
+      <div class="ratio-warn" id="ratioWarn">⚠ 图片比例与画布不符，导出将裁切</div>
+    </div>
+
+    <div class="section" id="bgSection">
+      <div class="section__label">底图</div>
+      <div class="bg-list" id="bgList"></div>
+    </div>
+
+    <div class="section">
+      <div class="section__label">字体</div>
+      <div class="fonts" id="fonts">
+        <div class="font-card f-pingfang active" data-font="pingfang"><span class="font-card__sample">标题字样</span><span class="font-card__name">苹方</span></div>
+        <div class="font-card f-songti" data-font="songti"><span class="font-card__sample">标题字样</span><span class="font-card__name">宋体</span></div>
+        <div class="font-card f-heiti" data-font="heiti"><span class="font-card__sample">标题字样</span><span class="font-card__name">黑体</span></div>
+        <div class="font-card f-noto" data-font="noto"><span class="font-card__sample">标题字样</span><span class="font-card__name">思源宋体</span></div>
+        <div class="font-card f-zcool" data-font="zcool"><span class="font-card__sample">标题字样</span><span class="font-card__name">站酷庆科</span></div>
+      </div>
+    </div>
+
+    <div class="section">
+      <div class="section__label">遮罩与文字</div>
+      <div class="slider-row">
+        <span class="slider-row__name">遮罩</span>
+        <input type="range" id="overlay" min="0" max="60" value="15">
+        <span class="slider-row__val" id="overlayVal">15%</span>
+      </div>
+      <div class="slider-row">
+        <span class="slider-row__name">字号</span>
+        <input type="range" id="titleSize" min="26" max="64" value="42">
+        <span class="slider-row__val" id="titleSizeVal">42px</span>
+      </div>
+      <div class="swatches" id="swatches">
+        <div class="swatch sw-white active" data-color="#ffffff" title="白"></div>
+        <div class="swatch sw-black" data-color="#1e1c18" title="黑"></div>
+        <div class="swatch sw-cream" data-color="#f2e6cf" title="米"></div>
+      </div>
+      <button class="logo-btn" id="logoBtn">＋ 添加 Logo（可选）</button>
+      <span class="logo-status" id="logoStatus"></span>
+      <input type="file" id="logoInput" accept="image/*" hidden>
+    </div>
+
+    <div class="section">
+      <div class="section__label">导出</div>
+      <div class="sizes" id="sizes">
+        <div class="size-opt active" data-scale="1"><span class="size-opt__label">标准</span><span class="size-opt__dim" data-scale="1">900 × 383</span></div>
+        <div class="size-opt" data-scale="2"><span class="size-opt__label">高清 @2x</span><span class="size-opt__dim" data-scale="2">1800 × 766</span></div>
+        <div class="size-opt" data-scale="3"><span class="size-opt__label">超清 @3x</span><span class="size-opt__dim" data-scale="3">2688 × 1144</span></div>
+      </div>
+      <button class="export-btn" id="exportBtn">
+        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+        导出 PNG
+      </button>
+      <div class="export-hint">⌘ / Ctrl + Enter</div>
+    </div>
+  </aside>
+
+  <main class="stage" id="stage">
+    <div class="canvas-wrap" id="canvasWrap">
+      <div class="cover f-pingfang" id="cover" style="width:900px;height:383px">
+        <img class="cover__bg" id="bgImage" src="" alt="">
+        <div class="cover__overlay" id="overlayLayer"></div>
+        <div class="cover__content">
+          <img class="cover__logo" id="logoImg" hidden alt="">
+          <div class="cover__title" id="title" contenteditable="true" spellcheck="false">{{TITLE}}</div>
+        </div>
+      </div>
+    </div>
+    <div class="stage__meta" id="stageMeta">900 × 383 · 2.35:1 · 点击标题直接编辑</div>
+  </main>
+
+<script>
+  const RATIOS = {
+    shoutu: { w: 900,  h: 383,  gen: '1344 × 572'  },
+    square: { w: 1080, h: 1080, gen: '1024 × 1024' },
+    wide:   { w: 1280, h: 720,  gen: '1280 × 720'  },
+    tall:   { w: 1080, h: 1440, gen: '1024 × 1365' },
+  };
+
+  const FONTS = {
+    pingfang: { stack: '"PingFang SC","Helvetica Neue",sans-serif', weight: 600 },
+    songti:   { stack: '"Songti SC","SimSun",serif', weight: 700 },
+    heiti:    { stack: '"Heiti SC","Microsoft YaHei",sans-serif', weight: 900 },
+    noto:     { stack: '"Noto Serif SC","Songti SC",serif', weight: 700 },
+    zcool:    { stack: '"ZCOOL QingKe HuangYou","PingFang SC",sans-serif', weight: 400 },
+  };
+
+  const state = { font: 'pingfang', scale: 1, titleColor: '#ffffff', w: 900, h: 383 };
+
+  /* 底图列表（由 build.cjs 注入），每项 { label, src } */
+  const BACKGROUNDS = {{BACKGROUNDS_JSON}};
+  let bgIndex = 0;
+
+  const $ = id => document.getElementById(id);
+  const cover = $('cover'), title = $('title'), bgImage = $('bgImage'),
+        overlayLayer = $('overlayLayer'), logoImg = $('logoImg');
+
+  /* ---- 画布尺寸 ---- */
+  function applyCanvasSize(w, h) {
+    state.w = w; state.h = h;
+    cover.style.width = w + 'px';
+    cover.style.height = h + 'px';
+    $('dimW').value = w; $('dimH').value = h;
+    // 建议生图尺寸：画布 ×1.5（已知比例用预设值）
+    const preset = Object.values(RATIOS).find(r => r.w === w && r.h === h);
+    $('genSize').textContent = preset ? preset.gen
+      : Math.round(w * 1.5) + ' × ' + Math.round(h * 1.5);
+    // 导出尺寸选项同步
+    document.querySelectorAll('.size-opt__dim').forEach(el => {
+      const s = parseInt(el.dataset.scale, 10);
+      el.textContent = (w * s) + ' × ' + (h * s);
+    });
+    const ratio = (w / h).toFixed(2);
+    $('stageMeta').textContent = w + ' × ' + h + ' · ' + ratio + ':1 · 点击标题直接编辑';
+    fitStage();
+    checkRatio();
+  }
+
+  $('ratioChips').addEventListener('click', e => {
+    const chip = e.target.closest('.ratio-chip');
+    if (!chip) return;
+    document.querySelectorAll('.ratio-chip').forEach(c => c.classList.remove('active'));
+    chip.classList.add('active');
+    const r = RATIOS[chip.dataset.key];
+    applyCanvasSize(r.w, r.h);
+  });
+
+  [$('dimW'), $('dimH')].forEach(inp => inp.addEventListener('input', () => {
+    const w = parseInt($('dimW').value, 10), h = parseInt($('dimH').value, 10);
+    if (!w || !h || w < 100 || h < 100) return;
+    document.querySelectorAll('.ratio-chip').forEach(c => c.classList.remove('active'));
+    state.w = w; state.h = h;
+    cover.style.width = w + 'px'; cover.style.height = h + 'px';
+    $('genSize').textContent = Math.round(w * 1.5) + ' × ' + Math.round(h * 1.5);
+    document.querySelectorAll('.size-opt__dim').forEach(el => {
+      const s = parseInt(el.dataset.scale, 10);
+      el.textContent = (w * s) + ' × ' + (h * s);
+    });
+    $('stageMeta').textContent = w + ' × ' + h + ' · ' + (w / h).toFixed(2) + ':1 · 点击标题直接编辑';
+    fitStage(); checkRatio();
+  }));
+
+  /* 图片比例 vs 画布比例 */
+  function checkRatio() {
+    if (!bgImage.naturalWidth) return;
+    const ir = bgImage.naturalWidth / bgImage.naturalHeight;
+    const cr = state.w / state.h;
+    $('ratioWarn').style.display = (Math.abs(ir - cr) / cr > 0.05) ? 'block' : 'none';
+  }
+  bgImage.addEventListener('load', checkRatio);
+
+  /* ---- 底图切换器 ---- */
+  function renderBgList() {
+    const list = $('bgList');
+    list.innerHTML = '';
+    BACKGROUNDS.forEach((bg, i) => {
+      const card = document.createElement('button');
+      card.className = 'bg-card' + (i === bgIndex ? ' active' : '');
+      const thumb = document.createElement('img');
+      thumb.className = 'bg-card__thumb';
+      thumb.src = bg.src;
+      const label = document.createElement('div');
+      label.className = 'bg-card__label';
+      label.textContent = bg.label;
+      card.appendChild(thumb);
+      card.appendChild(label);
+      card.addEventListener('click', () => selectBg(i));
+      list.appendChild(card);
+    });
+  }
+  function selectBg(i) {
+    bgIndex = i;
+    bgImage.src = BACKGROUNDS[i].src;
+    renderBgList();
+    checkRatio();
+  }
+  function initBackgrounds() {
+    if (!BACKGROUNDS.length) return;
+    if (BACKGROUNDS.length < 2) $('bgSection').style.display = 'none';
+    selectBg(0);
+  }
+
+  /* ---- 字体 ---- */
+  $('fonts').addEventListener('click', e => {
+    const card = e.target.closest('.font-card');
+    if (!card) return;
+    document.querySelectorAll('.font-card').forEach(c => c.classList.remove('active'));
+    card.classList.add('active');
+    state.font = card.dataset.font;
+    cover.className = 'cover f-' + state.font;
+  });
+
+  /* ---- 滑杆 ---- */
+  function bindSlider(id, valId, fmt, apply) {
+    const el = $(id), val = $(valId);
+    const update = () => {
+      const pct = (el.value - el.min) / (el.max - el.min) * 100;
+      el.style.setProperty('--fill', pct + '%');
+      val.textContent = fmt(el.value);
+      apply(el.value);
+    };
+    el.addEventListener('input', update);
+    update();
+  }
+  bindSlider('overlay', 'overlayVal', v => v + '%', v => { overlayLayer.style.opacity = v / 100; });
+  bindSlider('titleSize', 'titleSizeVal', v => v + 'px', v => { title.style.fontSize = v + 'px'; });
+
+  /* ---- 文字颜色 ---- */
+  $('swatches').addEventListener('click', e => {
+    const sw = e.target.closest('.swatch');
+    if (!sw) return;
+    document.querySelectorAll('.swatch').forEach(s => s.classList.remove('active'));
+    sw.classList.add('active');
+    state.titleColor = sw.dataset.color;
+    title.style.color = state.titleColor;
+  });
+
+  /* ---- Logo ---- */
+  $('logoBtn').addEventListener('click', () => $('logoInput').click());
+  $('logoInput').addEventListener('change', e => {
+    const file = e.target.files[0];
+    if (!file) return;
+    const reader = new FileReader();
+    reader.onload = ev => {
+      logoImg.src = ev.target.result;
+      logoImg.hidden = false;
+      $('logoStatus').textContent = file.name.length > 12 ? file.name.slice(0, 12) + '…' : file.name;
+      $('logoBtn').textContent = '↺ 更换 Logo';
+      checkRatio();
+    };
+    reader.readAsDataURL(file);
+  });
+
+  /* ---- 导出尺寸 ---- */
+  $('sizes').addEventListener('click', e => {
+    const opt = e.target.closest('.size-opt');
+    if (!opt) return;
+    document.querySelectorAll('.size-opt').forEach(o => o.classList.remove('active'));
+    opt.classList.add('active');
+    state.scale = parseInt(opt.dataset.scale, 10);
+  });
+
+  /* ---- 画布自适应（宽高都约束） ---- */
+  function fitStage() {
+    const availW = $('stage').clientWidth - 80;
+    const availH = $('stage').clientHeight - 120;
+    const s = Math.min(1, availW / state.w, availH / state.h);
+    cover.style.transform = 'scale(' + s + ')';
+    $('canvasWrap').style.width = (state.w * s) + 'px';
+    $('canvasWrap').style.height = (state.h * s) + 'px';
+  }
+  window.addEventListener('resize', fitStage);
+
+  /* ---- 文字换行 ---- */
+  function wrapText(ctx, text, maxWidth) {
+    const lines = [];
+    for (const para of text.split('\n')) {
+      if (!para.trim()) { lines.push(''); continue; }
+      const tokens = para.match(/[\u4e00-\u9fff\u3000-\u303f\uff00-\uffef]|[^\u4e00-\u9fff\u3000-\u303f\uff00-\uffef\s]+|\s+/g) || [para];
+      let line = '';
+      for (const tok of tokens) {
+        const test = line + tok;
+        if (ctx.measureText(test).width > maxWidth && line.trim()) {
+          lines.push(line.trimEnd()); line = tok.trimStart();
+        } else { line = test; }
+      }
+      if (line.trim()) lines.push(line.trimEnd());
+    }
+    return lines.length ? lines : [''];
+  }
+
+  function drawCover(ctx, img, W, H) {
+    const ir = img.width / img.height, cr = W / H;
+    let sw, sh, sx, sy;
+    if (ir > cr) { sh = img.height; sw = sh * cr; sx = (img.width - sw) / 2; sy = 0; }
+    else { sw = img.width; sh = sw / cr; sx = 0; sy = (img.height - sh) / 2; }
+    ctx.drawImage(img, sx, sy, sw, sh, 0, 0, W, H);
+  }
+
+  /* ---- 导出 ---- */
+  async function exportPNG() {
+    await document.fonts.ready;
+    const f = FONTS[state.font];
+    try { await document.fonts.load(f.weight + ' 42px ' + f.stack.split(',')[0]); } catch (_) {}
+
+    const s = state.scale, W = state.w * s, H = state.h * s;
+    const canvas = document.createElement('canvas');
+    canvas.width = W; canvas.height = H;
+    const ctx = canvas.getContext('2d');
+
+    drawCover(ctx, bgImage, W, H);
+
+    const opacity = parseFloat(overlayLayer.style.opacity || 0.15);
+    if (opacity > 0) { ctx.fillStyle = 'rgba(0,0,0,' + opacity + ')'; ctx.fillRect(0, 0, W, H); }
+
+    // 字号按画布宽度等比缩放（以 900 宽为基准）
+    const basePx = parseInt($('titleSize').value, 10);
+    const fontSize = basePx * (state.w / 900) * s;
+    const lineHeight = fontSize * 1.32;
+    ctx.font = f.weight + ' ' + fontSize + 'px ' + f.stack;
+    ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
+    const lines = wrapText(ctx, title.innerText, W * 0.88);
+    const textH = lines.length * lineHeight;
+
+    let logoH = 0, gap = 0;
+    if (!logoImg.hidden && logoImg.naturalWidth) {
+      logoH = Math.min(H * 0.12, logoImg.naturalHeight * ((W * 0.4) / logoImg.naturalWidth));
+      gap = H * 0.045;
+    }
+
+    const blockH = logoH + gap + textH;
+    let y = (H - blockH) / 2;
+    if (logoH) {
+      const logoW = logoImg.naturalWidth * (logoH / logoImg.naturalHeight);
+      ctx.drawImage(logoImg, (W - logoW) / 2, y, logoW, logoH);
+      y += logoH + gap;
+    }
+
+    ctx.fillStyle = state.titleColor;
+    ctx.shadowColor = 'rgba(0,0,0,.45)';
+    ctx.shadowBlur = fontSize * 0.33; ctx.shadowOffsetY = fontSize * 0.05;
+    for (const line of lines) { ctx.fillText(line, W / 2, y + lineHeight / 2); y += lineHeight; }
+
+    const filename = 'cover-' + W + 'x' + H + '.png';
+    const save = href => {
+      const a = document.createElement('a');
+      a.href = href;
+      a.download = filename;
+      document.body.appendChild(a);
+      a.click();
+      a.remove();
+    };
+    try {
+      canvas.toBlob(blob => {
+        if (!blob) { alert('导出失败：画布为空'); return; }
+        const url = URL.createObjectURL(blob);
+        save(url);
+        setTimeout(() => URL.revokeObjectURL(url), 2000);
+      }, 'image/png');
+    } catch (err) {
+      // 画布被污染（图片跨域）时 toBlob 抛错，回退 dataURL
+      try { save(canvas.toDataURL('image/png')); }
+      catch (e) { alert('导出失败：' + e.message + '\n请确认图片已内嵌为 data URI（用 scripts/build.cjs 构建）'); }
+    }
+  }
+
+  $('exportBtn').addEventListener('click', exportPNG);
+  document.addEventListener('keydown', e => {
+    if ((e.metaKey || e.ctrlKey) && e.key === 'Enter') { e.preventDefault(); exportPNG(); }
+  });
+
+  initBackgrounds();
+  fitStage();
+  checkRatio();
+</script>
+</body>
+</html>
