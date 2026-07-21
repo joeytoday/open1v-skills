@@ -28,6 +28,7 @@
 |------|------|--------|
 | [`open1v-product-visual`](./open1v-product-visual/) | 一站式电商商品图生成（拍照→识别→生图→叠文字→视频），支持飞书拍照出图 | 商品图、产品图、主图、白底图、促销图、商品视频 |
 | [`open1v-mpcover-gen`](./open1v-mpcover-gen/) | 公众号封面图生成（大字报/杂志/Claude极简/像素风格），百炼 CLI 出图 | 公众号封面、封面生成、cover、生成封面 |
+| [`open1v-openai-cover`](./open1v-openai-cover/) | OpenAI 风格公众号封面图（实物材质/晕染渐变/光束弧影/波形水彩），支持色系指定、多比例画布 | OpenAI封面、openai cover、实物封面、晕染封面、光束封面、波形封面 |
 | [`open1v-product-copy`](./open1v-product-copy/) | 多渠道产品推广文案（公众号/小红书/详情页），支持一键发布公众号草稿箱 | 写文案、推广文案、产品介绍、营销文案、发布公众号 |
 
 ### 📝 文档与写作
@@ -128,6 +129,10 @@ open1v-skills/
 ├── open1v-mpcover-gen/                 ← 公众号封面图生成
 │   ├── SKILL.md
 │   └── package.json
+├── open1v-openai-cover/                ← OpenAI 风格封面图生成
+│   ├── SKILL.md
+│   ├── assets/template.html            ← HTML 模板
+│   └── scripts/build.cjs               ← 构建脚本
 ├── open1v-product-copy/                ← 产品推广文案 & 公众号发布
 │   ├── SKILL.md
 │   ├── assets/product-post.css         ← 杂志风格排版 CSS

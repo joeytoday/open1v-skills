@@ -28,6 +28,7 @@ Each skill is a self-contained `SKILL.md` file that AI agents can read and follo
 |-------|-------------|----------|
 | [`open1v-product-visual`](./open1v-product-visual/) | E-commerce product image generation (photo → identify → generate → add text → video), supports Feishu photo-to-image | product image, main image, white background, promo image, product video |
 | [`open1v-mpcover-gen`](./open1v-mpcover-gen/) | WeChat MP cover image generation (headline/magazine/Claude minimal/pixel styles), powered by Bailian CLI | cover, generate cover, 公众号封面 |
+| [`open1v-openai-cover`](./open1v-openai-cover/) | OpenAI-style WeChat MP cover (material/gradient/light/watercolor styles), supports color scheme and multi-ratio canvas | OpenAI cover, material cover, gradient cover, light cover, watercolor cover |
 | [`open1v-product-copy`](./open1v-product-copy/) | Multi-channel product copywriting (WeChat MP / Xiaohongshu / product detail page), with one-click WeChat MP draft publishing | write copy, promotional copy, product intro, marketing copy, publish to WeChat MP |
 
 ### 📝 Documentation & Writing
@@ -128,6 +129,10 @@ open1v-skills/
 ├── open1v-mpcover-gen/                 ← WeChat MP cover image generation
 │   ├── SKILL.md
 │   └── package.json
+├── open1v-openai-cover/                ← OpenAI-style cover image generation
+│   ├── SKILL.md
+│   ├── assets/template.html            ← HTML template
+│   └── scripts/build.cjs               ← Build script
 ├── open1v-product-copy/                ← Product copywriting & WeChat MP publishing
 │   ├── SKILL.md
 │   ├── assets/product-post.css         ← Magazine-style CSS theme
