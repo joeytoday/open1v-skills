@@ -36,6 +36,7 @@
 | 技能 | 说明 | 触发词 |
 |------|------|--------|
 | [`open1v-qwencode-weekly`](./open1v-qwencode-weekly/) | Qwen Code 每周产品更新博客（MDX 格式，含数据收集、源码验证、正文写作全流程） | 写周报、qwencode 周报、产品更新、版本发布说明 |
+| [`open1v-qwencode-blog-cover`](./open1v-qwencode-blog-cover/) | Qwen Code 文档站博客封面生成（常青文章用微距实物，周报用晕染风格），2.35:1 公众号比例 | qwencode 博客封面、blog cover、生成博客封面、批量博客封面 |
 | [`open1v-qwencode-docs-trans`](./open1v-qwencode-docs-trans/) | Qwen Code 文档站博客/周报多语言翻译（中文→en/de/fr/ja/pt-BR/ru） | 翻译周报、翻译博客、多语言翻译、translate blog |
 | [`open1v-qwencode-showcases`](./open1v-qwencode-showcases/) | Qwen Code Showcase 视频演示管理（5场景分类、功能标签、7语言同步） | 添加 showcase、新增演示、showcase 添加 |
 
@@ -139,6 +140,8 @@ open1v-skills/
 │   ├── scripts/publish.mjs             ← 公众号发布脚本
 │   └── package.json
 ├── open1v-qwencode-weekly/             ← Qwen Code 周报写作
+│   └── SKILL.md
+├── open1v-qwencode-blog-cover/         ← Qwen Code 博客封面生成
 │   └── SKILL.md
 ├── open1v-qwencode-docs-trans/         ← Qwen Code 多语言翻译
 │   └── SKILL.md

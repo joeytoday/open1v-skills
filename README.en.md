@@ -36,6 +36,7 @@ Each skill is a self-contained `SKILL.md` file that AI agents can read and follo
 | Skill | Description | Triggers |
 |-------|-------------|----------|
 | [`open1v-qwencode-weekly`](./open1v-qwencode-weekly/) | Qwen Code weekly product update blog (MDX format, includes data collection, source verification, and writing workflow) | weekly report, qwencode weekly, product update, release notes |
+| [`open1v-qwencode-blog-cover`](./open1v-qwencode-blog-cover/) | Qwen Code docs blog cover generation (macro material for evergreen articles, gradient for weekly updates), 2.35:1 ratio | qwencode blog cover, blog cover, generate blog cover, batch blog cover |
 | [`open1v-qwencode-docs-trans`](./open1v-qwencode-docs-trans/) | Qwen Code docs blog/weekly multi-language translation (zh→en/de/fr/ja/pt-BR/ru) | translate blog, translate weekly, multi-language translation |
 | [`open1v-qwencode-showcases`](./open1v-qwencode-showcases/) | Qwen Code Showcase video demo management (5-scenario categories, feature tags, 7-language sync) | add showcase, new demo, showcase |
 
@@ -139,6 +140,8 @@ open1v-skills/
 │   ├── scripts/publish.mjs             ← WeChat MP publish script
 │   └── package.json
 ├── open1v-qwencode-weekly/             ← Qwen Code weekly writing
+│   └── SKILL.md
+├── open1v-qwencode-blog-cover/         ← Qwen Code blog cover generation
 │   └── SKILL.md
 ├── open1v-qwencode-docs-trans/         ← Qwen Code multi-language translation
 │   └── SKILL.md

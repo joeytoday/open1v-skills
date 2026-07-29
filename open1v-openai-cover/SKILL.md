@@ -3,9 +3,9 @@ name: open1v-openai-cover
 description: 生成 OpenAI 风格公众号封面图。四种风格：实物材质、晕染渐变、光束弧影、波形水彩。支持色系指定、字体选择、多比例画布。百炼 CLI 生图，HTML 组装，浏览器导出。触发词：OpenAI封面、openai cover、实物封面、晕染封面、光束封面、波形封面、播客封面、生成封面图。
 author: joeytoday
 author_url: https://github.com/joeytoday
-version: 1.13
+version: 1.15
 created: 2026-07-20
-updated: 2026-07-21
+updated: 2026-07-28
 ---
 
 # OpenAI 风格封面生成
@@ -156,12 +156,15 @@ Absolutely no text, no writing, no letters, no watermark, no logo anywhere.
 
 ```
 Abstract soft gradient (2.35:1 ultra-wide), monochromatic [色系] color scheme, single hue only.
-Smooth gentle transition from [浅] to [深] of the same hue, organic flowing shapes, soft blending.
-[一个质感词]: silky / watercolor / matte velvet.
+[构图]: radial glow blooming from an off-center point and fading outward / horizontal layered washes drifting across the frame / organic fluid blobs bleeding into each other with no directional flow / vertical transition settling from top to bottom / diagonal transition from one corner to the opposite.
+[一个质感词]: silky / watercolor / matte velvet / oil-paint.
+Subtle tonal variation from [浅] to [深] of the same hue, soft blending.
 No hard edges, no recognizable objects, no multiple colors.
 Minimal color palette, clean, calm, atmospheric.
 Absolutely no text, no writing, no letters, no watermark, no logo anywhere.
 ```
+
+**构图必须轮换**：只写"从浅到深过渡"时模型默认出对角渐变，系列图会雷同。同一批多张时，每张从上面 5 种构图里选不同的，构图 × 色系组合才撑得起系列感。
 
 效果参考：watercolor diffusion / soft gradient / matte velvet / silky smooth / fluid paint splash / oil-paint texture / ice-crack pattern / water ripple
 
@@ -202,6 +205,7 @@ Absolutely no text, no writing, no letters, no watermark, no logo anywhere.
 
 ```bash
 bl image generate \
+  --model qwen-image-max \
   --prompt "<提示词>" \
   --negative-prompt "<通用负面提示词>" \
   --size '<画布比例对应的生图尺寸，见"画布"表>' \
@@ -211,6 +215,8 @@ bl image generate \
   --base-url https://dashscope.aliyuncs.com \
   --out-dir ./output/image/
 ```
+
+**模型选择**：默认 `qwen-image-max`（当前可用、质量高）。`qwen-image-3.0-pro` 画质更好但需在百炼控制台开通权限（未开通报 403 AccessDenied）；`qwen-image-2.0` 是旧默认。裸 ID `qwen-image-3.0` 不存在，3.0 系列实际 ID 带 `-pro` 后缀。
 
 出 2 张备选，展示给用户选择。不满意则调整提示词重跑。
 
