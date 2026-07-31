@@ -4,8 +4,21 @@ All notable changes to this project will be documented in this file.
 
 ## [Unreleased]
 
+### Changed
+- `open1v-qwencode-weekly` - Updated SKILL.md
+
+## [2026-07-29]
+
+### Added
+- `open1v-qwencode-blog-cover` - Qwen Code docs blog cover generation (macro material for evergreen articles, gradient for weekly updates)
+
+## [2026-07-21]
+
 ### Added
 - `open1v-openai-cover` - OpenAI-style WeChat MP cover image generation (material/gradient/light/watercolor styles)
+
+### Changed
+- Refactored open1v-openai-cover skill files (SKILL.md, template.html, build.cjs)
 
 ## [2026-07-16]
 
