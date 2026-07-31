@@ -3,7 +3,7 @@ name: open1v-openai-cover
 description: 生成 OpenAI 风格公众号封面图。四种风格：实物材质、晕染渐变、光束弧影、波形水彩。支持色系指定、字体选择、多比例画布。百炼 CLI 生图，HTML 组装，浏览器导出。触发词：OpenAI封面、openai cover、实物封面、晕染封面、光束封面、波形封面、播客封面、生成封面图。
 author: joeytoday
 author_url: https://github.com/joeytoday
-version: 1.15
+version: 1.16
 created: 2026-07-20
 updated: 2026-07-28
 ---
@@ -14,48 +14,19 @@ updated: 2026-07-28
 
 ## 环境准备（首次自动执行）
 
-生图强依赖百炼 CLI（`bl`）。首次使用按下面流程检测，已就绪则跳过，不重复。
-
-**第一步：检测 bl 是否安装**
+依赖：百炼 CLI（`bl`）+ Node.js。首次使用自动检测，已就绪则跳过。
 
 ```bash
+# 1. 检测百炼 CLI
 command -v bl >/dev/null 2>&1 && bl --version
-```
+# 不存在时：用 web_fetch 读取 https://bailian.aliyun.com/cli/install.md 按说明安装
 
-- 命令存在 → 跳到第二步
-- 不存在 → 用 `web_fetch` 读取官方安装文档并按说明安装：
-  ```
-  url:    https://bailian.aliyun.com/cli/install.md
-  prompt: 按说明为我安装阿里云百炼 CLI
-  ```
-  该文档面向 AI Agent，涵盖 Node 版本检查（≥22.12）、npm 安装、网络/代理配置等完整流程，不要自己臆造安装命令。安装后跑 `bl --version` 验证。
-
-**第二步：检测是否已认证**
-
-```bash
+# 2. 检测认证状态，未认证则向用户索要 API Key
 bl auth status 2>&1
+# 未认证时：bl auth login --api-key <用户提供的KEY>
 ```
 
-- 输出含 API key（如 `sk-...`）→ 环境就绪，进入工作流
-- 未认证 → 进入第三步
-
-**第三步：向用户索要 API Key 并配置**
-
-```
-请提供你的百炼 API Key，我来配置。
-获取方式：https://bailian.console.aliyun.com → API-KEY 管理 → 创建/复制。
-```
-
-用户提供后自动登录并验证：
-
-```bash
-bl auth login --api-key <用户提供的KEY>
-bl auth status 2>&1
-```
-
-确认输出含 key 后告知"环境配置完成"，进入工作流。
-
-> 注：构建脚本 `scripts/build.cjs` 需要 Node.js（`node`），通常已随 bl 环境具备。
+> API Key 获取：https://bailian.console.aliyun.com → API-KEY 管理。
 
 ## 画布
 

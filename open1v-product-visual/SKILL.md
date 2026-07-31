@@ -3,7 +3,7 @@ name: open1v-product-visual
 description: 从拍照到成品的一站式电商商品图生成。支持拍照/发图 → 自动识别商品主体 → 生成标准商品图（白底/场景/促销/科技感）→ HTML叠加营销文字 → 导出最终PNG → 可选生成展示视频。可配合飞书频道使用（发照片 @机器人直接出图/视频）。当用户提到商品图、产品图、主图、白底图、促销图、商品视频、拍照生图、图生图、图生视频、产品展示视频、商品精修时使用此技能。
 author: joeytoday
 author_url: https://github.com/joeytoday
-version: 1.0
+version: 1.1
 published: true
 ---
 
@@ -305,67 +305,22 @@ product-charger-0610/
 
 每次生成图片后，**立即上传到飞书云空间并返回链接**，方便用户在飞书中预览。
 
-**文档 ID 管理**：上传图片需要一个飞书文档 ID 作为 `parent_node`。首次使用时自动创建一个文档，将 `document_id` 保存到项目文件夹的 `.feishu_doc_id` 文件中，后续复用。
+**前置配置**：设置飞书应用凭证环境变量：
 
 ```bash
-# 检查是否已有文档 ID
-DOC_ID_FILE="./product-<name>-<MMDD>/.feishu_doc_id"
-if [ -f "$DOC_ID_FILE" ]; then
-  DOC_ID=$(cat "$DOC_ID_FILE")
-else
-  # 首次使用，创建文档
-  DOC_ID=$(curl -s -X POST "https://open.feishu.cn/open-apis/docx/v1/documents" \
-    -H "Authorization: Bearer $TOKEN" \
-    -H "Content-Type: application/json" \
-    -d '{"title":"商品图 - <商品名> - <MMDD>"}' | node -e "process.stdout.write(JSON.parse(require('fs').readFileSync('/dev/stdin','utf8')).data.document.document_id)")
-  echo "$DOC_ID" > "$DOC_ID_FILE"
-fi
+export FEISHU_APP_ID="<你的飞书应用 App ID>"
+export FEISHU_APP_SECRET="<你的飞书应用 App Secret>"
 ```
 
-**上传方法**（Node.js 原生 fetch + 手动拼 multipart）：
+**文档 ID 管理**：上传图片需要一个飞书文档 ID 作为 `parent_node`。首次使用时自动创建一个文档，将 `document_id` 保存到项目文件夹的 `.feishu_doc_id` 文件中，后续复用。
 
-```javascript
-const fs = require('fs');
-const path = require('path');
+**上传命令**：
 
-const APP_ID = 'REDACTED_APP_ID';
-const APP_SECRET = 'REDACTED_APP_SECRET';
-
-// 获取 token
-async function getToken() {
-  const resp = await fetch('https://open.feishu.cn/open-apis/auth/v3/tenant_access_token/internal', {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ app_id: APP_ID, app_secret: APP_SECRET }),
-  });
-  return (await resp.json()).tenant_access_token;
-}
-
-// 上传图片（docId 从 .feishu_doc_id 文件读取）
-async function uploadImage(imagePath, docId, token) {
-  const fileName = path.basename(imagePath);
-  const fileBuffer = fs.readFileSync(imagePath);
-  const fileSize = fs.statSync(imagePath).size;
-  const boundary = '----WebKitFormBoundary' + Math.random().toString(36).slice(2);
-
-  const parts = [];
-  for (const [name, value] of [['file_name', fileName], ['parent_type', 'docx_image'], ['parent_node', docId], ['size', String(fileSize)]]) {
-    parts.push(Buffer.from('--' + boundary + '\r\nContent-Disposition: form-data; name="' + name + '"\r\n\r\n' + value + '\r\n'));
-  }
-  parts.push(Buffer.from('--' + boundary + '\r\nContent-Disposition: form-data; name="file"; filename="' + fileName + '"\r\n\r\n'));
-  parts.push(fileBuffer);
-  parts.push(Buffer.from('\r\n--' + boundary + '--\r\n'));
-
-  const resp = await fetch('https://open.feishu.cn/open-apis/drive/v1/medias/upload_all', {
-    method: 'POST',
-    headers: { 'Authorization': 'Bearer ' + token, 'Content-Type': 'multipart/form-data; boundary=' + boundary },
-    body: Buffer.concat(parts),
-  });
-  return await resp.json();
-}
+```bash
+node <skill目录>/open1v-product-visual/scripts/feishu-upload.mjs <图片路径> <文档ID>
 ```
 
-**图片链接格式**：`https://feishu.cn/drive/file/{file_token}`
+脚本输出图片链接（`https://feishu.cn/drive/file/<file_token>`），失败时输出错误信息并 exit 1。
 
 **上传时机**：
 - ❸ 每次生成商品图后 → 上传 `product/` 目录中的图片，返回链接
@@ -374,8 +329,7 @@ async function uploadImage(imagePath, docId, token) {
 
 **关键规则**：
 - 每个项目首次上传时创建一个文档，`document_id` 存到项目文件夹的 `.feishu_doc_id`，后续复用
-- 每张图上传后立即返回链接给用户，格式：`✓ <图片名> https://feishu.cn/drive/file/<file_token>`
-- 使用 Node.js 原生 `fetch` + 手动拼 multipart boundary，不要用 `form-data` 库或 `curl -F`
+- 每张图上传后立即返回链接给用户，格式：`✓ <图片名> <链接>`
 
 ## 注意事项
 
@@ -405,6 +359,7 @@ open1v-product-visual/
 ├── assets/
 │   └── template.html           ← HTML 模板（4 布局 × 3 主题）
 ├── scripts/
-│   └── render.cjs              ← Playwright @2x 渲染脚本
+│   ├── render.cjs              ← Playwright @2x 渲染脚本
+│   └── feishu-upload.mjs       ← 飞书云空间图片上传（需 FEISHU_APP_ID/SECRET 环境变量）
 └── output/                     ← 临时输出（项目文件夹在用户工作目录下）
 ```

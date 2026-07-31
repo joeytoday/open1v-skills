@@ -3,7 +3,7 @@ name: open1v-mpcover-gen
 description: 生成特定风格的公众号封面图。支持4种风格：大字报、杂志、Claude极简、像素。通过百炼CLI调用AI生图。触发词：公众号封面、封面生成、cover、生成封面、做个封面。
 author: joeytoday
 author_url: https://github.com/joeytoday
-version: 5.9
+version: 5.10
 created: 2026-05-28
 updated: 2026-07-03
 ---
@@ -14,67 +14,21 @@ updated: 2026-07-03
 
 ## 环境准备（首次自动执行）
 
-首次使用时，按以下流程自动检测并配置环境。依赖安装和认证通过后后续使用不再重复。
-
-### 自动检测流程
-
-**第零步：安装 Node 依赖**
+依赖：百炼 CLI（`bl`）+ Node.js + Playwright。首次使用自动检测，已就绪则跳过。
 
 ```bash
-cd <skill目录>/open1v-mpcover-gen && npm install
-```
+# 1. 安装 Node 依赖（Playwright 渲染）
+cd <skill目录>/open1v-mpcover-gen && npm install && npx playwright install chromium
 
-- `package.json` 已声明 `playwright` 依赖，用于 HTML → PNG 渲染
-- 如果 `node_modules` 已存在则跳过
-- 安装后自动执行 `npx playwright install chromium`（Playwright 需要浏览器内核）
+# 2. 检测百炼 CLI
+command -v bl >/dev/null 2>&1 || npm install -g @anthropic/bailian-cli
 
-**第一步：检测百炼 CLI 是否安装**
-
-```bash
-command -v bl >/dev/null 2>&1
-```
-
-- 如果命令存在 → 跳到第二步
-- 如果命令不存在 → 自动安装：
-  ```bash
-  npm install -g @anthropic/bailian-cli
-  ```
-  安装失败则提示用户参考 https://bailian.console.aliyun.com/cli 手动安装。
-
-**第二步：检测是否已认证**
-
-```bash
+# 3. 检测认证状态，未认证则向用户索要 API Key
 bl auth status 2>&1
+# 未认证时：bl auth login --api-key <用户提供的KEY>
 ```
 
-- 如果输出包含 "authenticated" 或显示用户信息 → 环境就绪，直接进入工作流
-- 如果未认证 → 进入第三步
-
-**第三步：向用户索要 API Key 并自动配置**
-
-向用户询问百炼 API Key：
-
-```
-请提供你的百炼 API Key，我来帮你自动配置。
-
-获取方式：打开 https://bailian.console.aliyun.com/cn-beijing?tab=model#/api-key ，创建或复制一个 API Key。
-
-⚠️ 建议同时前往模型用量页（https://bailian.console.aliyun.com/cn-beijing?tab=model#/model-usage）开启「免费额度用完即停」，避免欠费。
-```
-
-用户提供 Key 后，自动执行登录：
-
-```bash
-bl auth login --api-key <用户提供的KEY>
-```
-
-登录成功后验证：
-
-```bash
-bl auth status 2>&1
-```
-
-确认认证成功后告知用户"环境配置完成"，进入工作流。
+> API Key 获取：https://bailian.console.aliyun.com → API-KEY 管理。建议开启「免费额度用完即停」避免欠费。
 
 ---
 
