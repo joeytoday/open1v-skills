@@ -4,7 +4,7 @@
 
 ![GitHub stars](https://img.shields.io/github/stars/joeytoday/open1v-skills?style=for-the-badge&logo=github)
 ![License](https://img.shields.io/github/license/joeytoday/open1v-skills?style=for-the-badge&color=blue)
-![Skills](https://img.shields.io/badge/Skills-6-6366f1?style=for-the-badge)
+![Skills](https://img.shields.io/badge/Skills-9-6366f1?style=for-the-badge)
 
 **Personal AI Skill Collection** · For Qwen Code / Claude Code / Cursor and other AI agents
 

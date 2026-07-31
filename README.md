@@ -4,7 +4,7 @@
 
 ![GitHub stars](https://img.shields.io/github/stars/joeytoday/open1v-skills?style=for-the-badge&logo=github)
 ![License](https://img.shields.io/github/license/joeytoday/open1v-skills?style=for-the-badge&color=blue)
-![Skills](https://img.shields.io/badge/Skills-6-6366f1?style=for-the-badge)
+![Skills](https://img.shields.io/badge/Skills-9-6366f1?style=for-the-badge)
 
 **个人 AI 技能集合** · 适配 Qwen Code / Claude Code / Cursor 等 AI Agent 环境
 

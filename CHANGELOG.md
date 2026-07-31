@@ -1,44 +1,46 @@
-# Changelog
+# 更新日志
 
-All notable changes to this project will be documented in this file.
+记录本项目的所有重要变更。
 
 ## [Unreleased]
 
-### Changed
-- `open1v-qwencode-weekly` - Updated SKILL.md
+### 变更
+- `open1v-qwencode-weekly` (v2.22 → v2.23) - 整合周报写作规范（写作原则、功能排序、演示素材、段落组织、可演示性准入、逻辑递进），质量自检清单重构为 5 个子清单
+- `open1v-qwencode-docs-trans` (v2.0 → v2.3) - 翻译规范更新
+- `open1v-qwencode-blog-cover` (v1.5 → v1.6) - 封面生成规范更新
 
 ## [2026-07-29]
 
-### Added
-- `open1v-qwencode-blog-cover` - Qwen Code docs blog cover generation (macro material for evergreen articles, gradient for weekly updates)
+### 新增
+- `open1v-qwencode-blog-cover` - Qwen Code 文档站博客封面生成（常青文章用微距实物，周报用晕染风格）
 
 ## [2026-07-21]
 
-### Added
-- `open1v-openai-cover` - OpenAI-style WeChat MP cover image generation (material/gradient/light/watercolor styles)
+### 新增
+- `open1v-openai-cover` - OpenAI 风格公众号封面图生成（实物材质/晕染渐变/光束弧影/波形水彩）
 
-### Changed
-- Refactored open1v-openai-cover skill files (SKILL.md, template.html, build.cjs)
+### 变更
+- 重构 open1v-openai-cover 技能文件（SKILL.md、template.html、build.cjs）
 
 ## [2026-07-16]
 
-### Changed
-- Optimized README.md and README.en.md with better visual layout
-- Updated skill list to reflect current repository state
-- Added emoji icons for skill categories (🎨 📝 🤔)
-- Added trigger words column to skill tables
+### 变更
+- 优化 README.md 和 README.en.md 的视觉排版
+- 更新技能列表，与仓库实际状态对齐
+- 技能分类增加 emoji 图标（🎨 📝 🤔）
+- 技能表格增加触发词列
 
-### Fixed
-- Removed deprecated `open1v-qwencode-translate` skill reference
-- Updated directory structure to match actual files
+### 修复
+- 移除已废弃的 `open1v-qwencode-translate` 技能引用
+- 目录结构与实际文件对齐
 
-## [Initial Release]
+## [首次发布]
 
-### Added
-- `open1v-product-visual` - E-commerce product image & video generation
-- `open1v-mpcover-gen` - WeChat MP cover image generation (4 styles)
-- `open1v-product-copy` - Multi-channel product copywriting & WeChat MP publishing
-- `open1v-qwencode-weekly` - Qwen Code weekly product update blog
-- `open1v-qwencode-docs-trans` - Qwen Code docs multi-language translation
-- `open1v-qwencode-showcases` - Qwen Code Showcase video demo management
-- `open1v-qa-before-start` - Socratic requirement clarification
+### 新增
+- `open1v-product-visual` - 一站式电商商品图与视频生成
+- `open1v-mpcover-gen` - 公众号封面图生成（大字报/杂志/Claude极简/像素 4 种风格）
+- `open1v-product-copy` - 多渠道产品推广文案与公众号发布
+- `open1v-qwencode-weekly` - Qwen Code 每周产品更新博客
+- `open1v-qwencode-docs-trans` - Qwen Code 文档站多语言翻译
+- `open1v-qwencode-showcases` - Qwen Code Showcase 视频演示管理
+- `open1v-qa-before-start` - 苏格拉底式需求澄清

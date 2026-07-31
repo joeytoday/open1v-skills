@@ -3,9 +3,11 @@ name: open1v-qwencode-blog-cover
 description: 为 Qwen Code 文档站博客生成封面。常青文章（入门/实战/进阶）用微距实物（按内容配材质+单色系），周报（功能更新）用晕染（每期专属构图×色不重复）。2.35:1 公众号比例，qwen-image-max 出图，直接出 PNG 不做 HTML 叠字导出。触发词：qwencode 博客封面、blog cover、生成博客封面、批量博客封面、qwencode cover。
 author: joeytoday
 author_url: https://github.com/joeytoday
-version: 1.5
-created: 2026-07-29
-updated: 2026-07-29
+version: 1.6
+pub-to: GitHub
+published: true
+created: 2026-07-31 13:35
+updated: 2026-07-31 14:06
 ---
 
 # Qwen Code 博客封面
@@ -103,19 +105,31 @@ Minimal color palette, clean, calm, atmospheric.
 Absolutely no text, no writing, no letters, no watermark, no logo anywhere.
 ```
 
-5 种构图（每期选不同的，轮换）：
+8 种构图（每期选不同的，轮换；连续 3 期不用同一构图）：
 
 - `Soft light glow emanating from an off-center point, fading outward to the edges`（径向光晕）
 - `Horizontal layered washes drifting across the frame in soft bands`（横向水痕）
 - `Organic fluid blobs bleeding into each other with no directional flow`（有机流体）
 - `Vertical transition settling from top to bottom`（垂直沉降）
 - `Diagonal transition flowing from one corner to the opposite`（对角）
+- `Ink drops diffusing in still water, soft tendrils spreading outward from multiple points`（墨滴扩散）
+- `Marbled swirl pattern with gentle curving veins of lighter tone threading through`（大理石纹）
+- `Soft smoke wisps curling and layering with no fixed direction, ethereal and weightless`（烟雾缭绕）
 
-质感词：watercolor diffusion / silky smooth / matte velvet / oil-paint。
+8 种质感词（每期搭配不同构图，避免连续重复）：
+
+- `watercolor diffusion`（水彩晕开）
+- `silky smooth`（丝绸顺滑）
+- `matte velvet`（哑光丝绒）
+- `oil-paint`（厚涂油画）
+- `ink wash bleed`（水墨渗透）
+- `marbled veining`（大理石脉纹）
+- `frosted crystalline`（磨砂结晶）
+- `granular sand-like`（颗粒砂感）
 
 **禁花形**：晕染（尤其径向光晕）极易出花朵/花瓣。negative 在通用词之外**额外加** `flower, petals, blossom, botanical, floral, plant, leaves, scribbles`，提示词强调 `purely abstract`。`blooming` 这类词会诱导出花，禁用（径向已改用 `emanating`）。
 
-**每期专属，不重复**：用「5 构图 × 多色系」凑出唯一组合（色系如 紫/雾蓝/鼠尾草绿/蜜桃/玫瑰/青绿/琥珀金/薰衣草/珊瑚/薄荷/靛蓝/灰紫）。文件名 = 文章 slug（`weekly-update-YYYY-MM-DD.png`）。
+**每期专属，不重复**：用「8 构图 × 8 质感 × 12+ 色系」凑出唯一组合（色系如 紫/雾蓝/鼠尾草绿/蜜桃/玫瑰/青绿/琥珀金/薰衣草/珊瑚/薄荷/靛蓝/灰紫）。连续 3 期不用同一构图或同一质感。文件名 = 文章 slug（`weekly-update-YYYY-MM-DD.png`）。
 
 ## 生图
 
