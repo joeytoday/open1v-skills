@@ -2,9 +2,9 @@
 name: open1v-qwencode-showcases
 description: 向 Qwen Code 文档站添加新的 showcase 视频演示。从周报或功能说明中提取演示内容，按5个工作场景分类、功能标签标注，添加到中文版 showcase index 文件，然后翻译成6种语言版本。触发词：添加 showcase、新增演示、showcase 添加、qwencode showcase、视频演示添加。
 author: joeytoday
-version: 2.1
+version: 2.2
 created: 2026-06-22
-updated: 2026-07-03
+updated: 2026-08-05
 ---
 
 # Qwen Code Showcase 添加流程
@@ -109,7 +109,7 @@ updated: 2026-07-03
 
 ### 第三步：翻译成其他语言（用户确认后执行）
 
-根据 `qwencode-translate` skill 的规则，将新增的演示翻译成以下语言：
+将新增的演示翻译成以下语言：
 
 **目标语言**：en、de、fr、ja、pt-BR、ru
 

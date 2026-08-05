@@ -1,13 +1,13 @@
 ---
 name: open1v-qwencode-weekly
-description: 为 Qwen Code 创建每周产品更新博客文章（周报）。技能负责数据收集（GitHub releases/PRs）、文件生成。写作风格规范统一由 open1v-qwencode-write skill 管理。触发词：写周报、qwencode 周报、产品更新、版本发布说明、功能迭代记录。
+description: 为 Qwen Code 创建每周产品更新博客文章（周报）。技能负责数据收集（GitHub releases/PRs）、文件生成、写作规范与质量自检。触发词：写周报、qwencode 周报、产品更新、版本发布说明、功能迭代记录。
 author: joeytoday
 author_url: https://github.com/joeytoday
-version: 2.23
+version: 2.24
 pub-to: GitHub
 published: true
 created: 2026-07-31 11:33
-updated: 2026-07-31 14:14
+updated: 2026-08-05
 ---
 
 # Qwen Code 周报写作技能
@@ -213,7 +213,12 @@ import { Callout } from 'nextra/components'
 
 ## 写作风格
 
-> 写作风格、功能排序、演示占位符、去 AI 味等规范统一由 `open1v-qwencode-write` skill（`4-ref/ai/skills/open1v-qwencode-write/SKILL.md`）管理。执行周报写作前，必须先读取该 skill 并遵循其「周报写作（子场景）」章节的全部规范。
+- **用户视角**：每个功能从用户痛点讲起，不是功能驱动
+- **白话解释**：技术术语首次出现时给一句通俗解释
+- **不堆砌**：避免纯功能罗列，每个功能有场景和体验描述
+- **去 AI 味**：无排比三连、无上价值、无 " 不是…而是…" 过度使用、无感叹号、无 " 我们 " 模糊主语
+- **功能排序**：全新且解决痛点的功能排前面
+- **演示占位符**：独立段落标注 `[📸]` 或 `[🎥]`
 
 ## 格式规范
 
@@ -293,7 +298,7 @@ import { Callout } from 'nextra/components'
 - [ ] **用户视角**：每个功能是否从用户痛点出发，而非功能驱动？
 - [ ] **白话解释**：技术术语首次出现时是否有通俗解释？
 - [ ] **不堆砌**：是否避免了纯功能罗列，每个功能有场景和体验描述？
-- [ ] **去 AI 味**：是否通过 `open1v-qwencode-write` 的去 AI 味自检？（无排比三连、无上价值、无 " 不是…而是…" 过度使用、无感叹号、无 " 我们 " 模糊主语）
+- [ ] **去 AI 味**：无排比三连、无上价值、无 " 不是…而是…" 过度使用、无感叹号、无 " 我们 " 模糊主语
 - [ ] **PR 链接准确**：所有 PR 链接是否从 GitHub API 获取，未编造？
 - [ ] **敏感内容过滤**：是否过滤了 CodingPlan/ATA/钉钉协作等内部内容？（百炼为公开产品名不过滤）
 - [ ] **演示素材**：独立段落是否标注了演示占位符（视频/截图）？
@@ -314,7 +319,7 @@ import { Callout } from 'nextra/components'
 
 ### 段落组织规范
 
-周报段落不固定为 "7 个独立段落 + 表格 "，根据本周功能特点灵活组织。详见 `open1v-qwencode-write` skill 的「周报段落组织规范」章节。
+周报段落不固定为 "7 个独立段落 + 表格 "，根据本周功能特点灵活组织，段落类型与选择标准见下。
 
 **段落类型**：
 
@@ -354,9 +359,8 @@ import { Callout } from 'nextra/components'
 
 ## 关联技能
 
-- 周报完成后，建议使用 `qwencode-social` 生成社交媒体版本（Twitter + 微信社群）
-- 周报发布后，建议使用 `qwencode-thanks-mail` 发送贡献者感谢邮件
-- 如需同步更新文档站，建议使用 `qwencode-docs-sync`
+- 周报完成后，用 `open1v-qwencode-docs-trans` 翻译成 6 语言（en/de/fr/ja/pt-BR/ru）
+- 周报封面用 `open1v-qwencode-blog-cover` 生成（周报走晕染风格）
 
 ## Skill 版本管理（通用）
 

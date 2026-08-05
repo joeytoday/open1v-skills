@@ -2,16 +2,14 @@
 name: open1v-qwencode-docs-trans
 description: Qwen Code 文档站博客/周报多语言翻译。包含翻译规范和并行执行流程。触发词：翻译周报、翻译博客、多语言翻译、translate blog、translate weekly、docs trans。
 author: joeytoday
-version: 2.3
+version: 2.4
 pub-to: GitHub
 published: true
 created: 2026-07-31 13:35
-updated: 2026-07-31 14:06
+updated: 2026-08-05
 ---
 
 # Qwen Code 博客多语言翻译
-
-> 写作风格遵循 SOUL
 
 ## 翻译配置
 
