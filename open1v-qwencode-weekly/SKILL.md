@@ -3,7 +3,7 @@ name: open1v-qwencode-weekly
 description: 为 Qwen Code 创建每周产品更新博客文章（周报）。技能负责数据收集（GitHub releases/PRs）、文件生成、写作规范与质量自检。触发词：写周报、qwencode 周报、产品更新、版本发布说明、功能迭代记录。
 author: joeytoday
 author_url: https://github.com/joeytoday
-version: 2.24
+version: 2.25
 pub-to: GitHub
 published: true
 created: 2026-07-31 11:33
@@ -121,50 +121,14 @@ curl -s "https://github.com/QwenLM/qwen-code/pulls?q=is%3Apr+is%3Amerged+sort%3A
 ### 输出位置
 
 ```
-1-projects/work/qwencode/weekly-update/weekly-update-YYYY-MM-DD.md
+website/content/zh/blog/updates/weekly-update-YYYY-MM-DD.mdx
 ```
 
-文件名格式：`weekly-update-YYYY-MM-DD.md`，其中日期为周报发布日期（通常是周四或周五）。
-
-### Frontmatter 格式（产品更新类）
-
-遵循 work-post 产品更新的 frontmatter 规范：
-
-```markdown
----
-tags:
-  - 工作/产品/产品更新
-  - 工作/运营/内容
-status:
-  - 🟢 Done
-publishDate: YYYY-MM-DD
-pub-to:
-  - 🟪 QC-blog
-page-views: 0
-URL: https://qwenlm.github.io/qwen-code-docs/zh/blog/weekly-update-YYYY-MM-DD/
-type:
-  - work-post
-project: "[[qwencode产品运营]]"
-year: "[[YYYY]]"
-archived: false
-created: YYYY-MM-DD HH:mm
-updated: YYYY-MM-DD HH:mm
----
-```
-
-**Frontmatter 说明**：
-
-- `tags`: 使用 `工作/产品/产品更新` 作为主标签，符合 work-post 分类
-- `status`: 🟢 Done 表示已完成
-- `pub-to`: 🟪 QC-blog 表示发布到 Qwen Code 博客
-- `page-views`: 发布后更新浏览量
-- `URL`: 发布后填写实际链接
-- `type`: work-post 表示工作类文章
-- `project`: 关联到 qwencode 产品运营项目
+文件名格式：`weekly-update-YYYY-MM-DD.mdx`，其中日期为周报发布日期（通常是周四或周五）。路径与 `open1v-qwencode-docs-trans` 的翻译源路径一致。
 
 ### 正文模板
 
-使用 `4-ref/template/05-qc-blog-temp.md`，正文保持 mdx 格式。开头 MDX 内容（frontmatter + imports + BlogPostHeader）必须包裹在 ````mdx` 代码块内，末尾 Callout + GitHub Issues 不加代码块：
+正文是标准 mdx 文件：frontmatter + imports + BlogPostHeader + 正文 + 末尾固定内容。
 
 ```mdx
 ---
@@ -173,6 +137,7 @@ date: "YYYY-MM-DD"
 description: "本周发布 vX.Y.Z 版本，新增 Feature1、Feature2 等功能。"
 author: "Qwen Team"
 tags: ["Product Updates", "release", "weekly"]
+image: "<封面图 CDN 链接，封面上传后填写>"
 ---
 
 import { BlogPostHeader } from '@/components/blog-post-header'
@@ -183,17 +148,22 @@ import { Callout } from 'nextra/components'
   date="YYYY-MM-DD"
   author="Qwen Team"
 />
-```
 
 [正文内容]
-
-末尾固定内容（必须包含，不加代码块）：
 
 <Callout type="info">
   **升级方式**：运行 `npm i @qwen-code/qwen-code@latest -g` 即可升级到最新版本。
 </Callout>
 
 如有问题或建议，欢迎在 [GitHub Issues](https://github.com/QwenLM/qwen-code/issues) 反馈！
+```
+
+**Frontmatter 说明**：
+
+- `title`：`Qwen Code 周报：` + 功能的完整用户价值描述，不是纯功能名罗列
+- `date`：发布日期，`YYYY-MM-DD`
+- `description`：版本 + 功能概要，1-2 句
+- `image`：封面图 CDN 链接，封面生成并上传后填写（见 `open1v-qwencode-blog-cover`）
 
 ## 功能间逻辑递进
 
@@ -314,7 +284,7 @@ import { Callout } from 'nextra/components'
 - [ ] **PR 链接是否准确**？（必须从 GitHub API 获取，不要编造）
 - [ ] **是否过滤了内部敏感内容**？（CodingPlan/ATA/钉钉协作等，百炼为公开产品名不过滤）
 - [ ] **贡献者列表是否完整**？每位贡献者是否标注了具体贡献？
-- [ ] **MDX 代码块格式**：开头 MDX 内容（frontmatter + imports + BlogPostHeader）是否包裹在 ````mdx` 代码块内？末尾 Callout + GitHub Issues 是否没有代码块包裹？
+- [ ] **MDX 文件格式**：frontmatter 字段是否完整（title/date/description/author/tags，image 在封面上传后补填）？import 和 BlogPostHeader 是否完整？末尾是否包含升级方式 Callout 和 GitHub Issues 反馈？
 - [ ] **版本功能校验**：周报中所有 PR 是否已包含在已发布的稳定版中？未进稳定版的 PR 是否已从周报中排除？
 
 ### 段落组织规范

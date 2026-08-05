@@ -5,6 +5,7 @@
 ## [Unreleased]
 
 ### 变更
+- `open1v-qwencode-weekly` (v2.24 → v2.25) - 输出改为标准 mdx 博客文件（对齐 docs-trans 源路径，新增 image 字段），移除个人工作笔记 frontmatter、仓库外模板引用和 mdx 代码块包裹规则
 - `open1v-qwencode-weekly` (v2.23 → v2.24) - 移除对仓库外技能（open1v-qwencode-write、qwencode-social、qwencode-thanks-mail、qwencode-docs-sync）的引用，写作风格改为技能内自包含规范，关联技能改为仓库内的 docs-trans 和 blog-cover
 - `open1v-qwencode-showcases` (v2.1 → v2.2) - 移除已废弃的 qwencode-translate 引用（翻译规则本已完整内联）
 - `open1v-qwencode-docs-trans` (v2.3 → v2.4) - 移除对仓库外 SOUL 配置的引用（翻译风格规范本已完整内联）
